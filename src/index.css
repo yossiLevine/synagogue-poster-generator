@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@300;400;500;700;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-heebo: 'Heebo', sans-serif;
+    --font-frank: 'Frank Ruhl Libre', serif;
+    
+    --background: 40 30% 97%;
+    --foreground: 220 40% 13%;
+    --card: 40 25% 98%;
+    --card-foreground: 220 40% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 40% 13%;
+    --primary: 220 60% 22%;
+    --primary-foreground: 40 30% 95%;
+    --secondary: 40 45% 72%;
+    --secondary-foreground: 220 40% 13%;
+    --muted: 40 20% 93%;
+    --muted-foreground: 220 15% 45%;
+    --accent: 40 50% 68%;
+    --accent-foreground: 220 40% 13%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 40 25% 85%;
+    --input: 40 20% 88%;
+    --ring: 220 60% 22%;
+    --chart-1: 220 60% 22%;
+    --chart-2: 40 45% 72%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 220 30% 8%;
+    --foreground: 40 20% 92%;
+    --card: 220 30% 12%;
+    --card-foreground: 40 20% 92%;
+    --popover: 220 30% 10%;
+    --popover-foreground: 40 20% 92%;
+    --primary: 40 45% 72%;
+    --primary-foreground: 220 40% 13%;
+    --secondary: 220 30% 18%;
+    --secondary-foreground: 40 20% 92%;
+    --muted: 220 20% 16%;
+    --muted-foreground: 220 10% 55%;
+    --accent: 40 50% 68%;
+    --accent-foreground: 220 40% 13%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 40 45% 72%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-heebo;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  /* When printing normal poster */
+  body:not(.printing-sign) #print-area,
+  body:not(.printing-sign) #print-area * {
+    visibility: visible;
+  }
+
+  body:not(.printing-sign) #print-area {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* When printing a door / hall sign */
+  body.printing-sign #sign-print-area,
+  body.printing-sign #sign-print-area * {
+    visibility: visible;
+  }
+
+  body.printing-sign #sign-print-area {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+}

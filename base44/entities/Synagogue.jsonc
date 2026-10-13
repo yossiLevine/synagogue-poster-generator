@@ -1,0 +1,91 @@
+{
+  "name": "Synagogue",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d1\u05d9\u05ea \u05d4\u05db\u05e0\u05e1\u05ea"
+    },
+    "city": {
+      "type": "string",
+      "description": "\u05e2\u05d9\u05e8"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "\u05e7\u05d5\u05d0\u05d5\u05e8\u05d3\u05d9\u05e0\u05d8\u05d4 \u05e8\u05d5\u05d7\u05d1"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "\u05e7\u05d5\u05d0\u05d5\u05e8\u05d3\u05d9\u05e0\u05d8\u05d4 \u05d0\u05d5\u05e8\u05da"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "URL \u05dc\u05ea\u05de\u05d5\u05e0\u05ea \u05dc\u05d5\u05d2\u05d5"
+    },
+    "default_theme": {
+      "type": "string",
+      "default": "classic",
+      "description": "\u05e0\u05d5\u05e9\u05d0 \u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc"
+    },
+    "default_frame": {
+      "type": "string",
+      "default": "classic",
+      "description": "\u05de\u05e1\u05d2\u05e8\u05ea \u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "\u05d1\u05d9\u05ea \u05db\u05e0\u05e1\u05ea \u05e4\u05e2\u05d9\u05dc"
+    },
+    "synagogue_config": {
+      "type": "string",
+      "description": "JSON \u05e9\u05dc \u05d4\u05d2\u05d3\u05e8\u05d5\u05ea \u05d1\u05d9\u05ea \u05d4\u05db\u05e0\u05e1\u05ea (\u05dc\u05d5\u05d2\u05d5, \u05d2\u05d5\u05d3\u05dc, \u05e2\u05d9\u05e8, \u05e6\u05d1\u05e2\u05d9\u05dd)"
+    },
+    "prayer_rules": {
+      "type": "string",
+      "description": "JSON \u05e9\u05dc \u05d7\u05d5\u05e7\u05d9 \u05ea\u05e4\u05d9\u05dc\u05d4 \u05d9\u05d7\u05e1\u05d9\u05d9\u05dd"
+    },
+    "prayer_profiles": {
+      "type": "string",
+      "description": "JSON \u05e9\u05dc \u05e4\u05e8\u05d5\u05e4\u05d9\u05dc\u05d9 \u05ea\u05e4\u05d9\u05dc\u05d4 \u05e9\u05de\u05d5\u05e8\u05d9\u05dd"
+    },
+    "selected_zmanim": {
+      "type": "string",
+      "description": "JSON \u05e9\u05dc \u05d6\u05de\u05e0\u05d9\u05dd \u05e0\u05d1\u05d7\u05e8\u05d9\u05dd \u05dc\u05d4\u05e6\u05d2\u05d4 \u05d1\u05de\u05d5\u05d3\u05e2\u05d4"
+    },
+    "zmanim_overrides": {
+      "type": "string",
+      "description": "JSON \u05e9\u05dc \u05e2\u05e7\u05d9\u05d1\u05d5\u05ea \u05d9\u05d3\u05e0\u05d9\u05d5\u05ea \u05dc\u05d6\u05de\u05e0\u05d9\u05dd \u05e1\u05e4\u05e6\u05d9\u05e4\u05d9\u05d9\u05dd { [key]: 'HH:MM' }"
+    },
+    "templates": {
+      "type": "string",
+      "description": "JSON \u05e9\u05dc \u05ea\u05d1\u05e0\u05d9\u05d5\u05ea \u05e9\u05d5\u05e8\u05d5\u05ea \u05ea\u05e4\u05d9\u05dc\u05d4 \u05e9\u05de\u05d5\u05e8\u05d5\u05ea"
+    },
+    "poster_history": {
+      "type": "string",
+      "description": "JSON \u05e9\u05dc \u05d4\u05d9\u05e1\u05d8\u05d5\u05e8\u05d9\u05d9\u05ea \u05de\u05d5\u05d3\u05e2\u05d5\u05ea (\u05e2\u05d3 20 \u05d0\u05d7\u05e8\u05d5\u05e0\u05d5\u05ea)"
+    }
+  },
+  "required": [
+    "name",
+    "city"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,1631 @@
+[
+  {
+    "id": 1,
+    "name": "ירושלים",
+    "luachId": 16,
+    "lat": 31.7884,
+    "lng": 35.2184,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 14,
+    "name": "כל העולם",
+    "luachId": 136,
+    "lat": -24.7761,
+    "lng": 134.755,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 21,
+    "name": "גבעת זאב",
+    "luachId": 12,
+    "lat": 31.8654,
+    "lng": 35.1535,
+    "elevation": 600,
+    "plainEl": 0
+  },
+  {
+    "id": 24,
+    "name": "אשדוד",
+    "luachId": 17,
+    "lat": 31.797,
+    "lng": 34.658,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 25,
+    "name": "נתניה",
+    "luachId": 18,
+    "lat": 32.3433,
+    "lng": 34.856,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 26,
+    "name": "ביתר עילית",
+    "luachId": 19,
+    "lat": 31.693,
+    "lng": 35.1078,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 27,
+    "name": "נתיבות",
+    "luachId": 20,
+    "lat": 31.422,
+    "lng": 34.585,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 28,
+    "name": "אלעד 80",
+    "luachId": 21,
+    "lat": 32.0527,
+    "lng": 34.9456,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 29,
+    "name": "אלעד 155",
+    "luachId": 21,
+    "lat": 32.0527,
+    "lng": 34.965,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 31,
+    "name": "פתח תקוה",
+    "luachId": 22,
+    "lat": 32.08,
+    "lng": 34.87,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 32,
+    "name": "רכסים",
+    "luachId": 23,
+    "lat": 32.753,
+    "lng": 35.1,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 33,
+    "name": "לוד אחיסמך",
+    "luachId": 24,
+    "lat": 31.949,
+    "lng": 34.8885,
+    "elevation": 60,
+    "plainEl": 0
+  },
+  {
+    "id": 34,
+    "name": "קרית יערים טלז סטון",
+    "luachId": 25,
+    "lat": 31.803,
+    "lng": 35.1,
+    "elevation": 700,
+    "plainEl": 0
+  },
+  {
+    "id": 37,
+    "name": "עפולה",
+    "luachId": 26,
+    "lat": 32.6,
+    "lng": 35.29,
+    "elevation": 56.382,
+    "plainEl": 0
+  },
+  {
+    "id": 41,
+    "name": "אופקים",
+    "luachId": 29,
+    "lat": 31.307,
+    "lng": 34.625,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 42,
+    "name": "תפרח",
+    "luachId": 30,
+    "lat": 31.325,
+    "lng": 34.678,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 44,
+    "name": "אשקלון",
+    "luachId": 33,
+    "lat": 31.666,
+    "lng": 34.565,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 45,
+    "name": "מודיעין עילית",
+    "luachId": 34,
+    "lat": 31.932,
+    "lng": 35.046,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 47,
+    "name": "קרית אתא",
+    "luachId": 36,
+    "lat": 32.803,
+    "lng": 35.105,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 48,
+    "name": "בית שמש",
+    "luachId": 37,
+    "lat": 31.7365,
+    "lng": 34.9885,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 50,
+    "name": "מגדל העמק",
+    "luachId": 39,
+    "lat": 32.678,
+    "lng": 35.241,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 51,
+    "name": "זכרון יעקב",
+    "luachId": 40,
+    "lat": 32.568,
+    "lng": 34.949,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 53,
+    "name": "מקסיקו - פולנקו",
+    "luachId": 41,
+    "lat": 19.4398,
+    "lng": -99.2006,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 55,
+    "name": "חיפה",
+    "luachId": 43,
+    "lat": 32.806,
+    "lng": 35.0023,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 56,
+    "name": "מירון",
+    "luachId": 177,
+    "lat": 32.9808,
+    "lng": 35.4406,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 58,
+    "name": "צפת",
+    "luachId": 44,
+    "lat": 32.966,
+    "lng": 35.487,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 59,
+    "name": "חולון",
+    "luachId": 45,
+    "lat": 32.01,
+    "lng": 34.78,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 60,
+    "name": "טבריה",
+    "luachId": 46,
+    "lat": 32.782,
+    "lng": 35.516,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 61,
+    "name": "בית שאן",
+    "luachId": 47,
+    "lat": 32.492,
+    "lng": 35.5,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 62,
+    "name": "דימונה",
+    "luachId": 48,
+    "lat": 31.076,
+    "lng": 35.035,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 63,
+    "name": "רחובות",
+    "luachId": 49,
+    "lat": 31.894,
+    "lng": 34.816,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 65,
+    "name": "תל ציון",
+    "luachId": 50,
+    "lat": 31.8768,
+    "lng": 35.2394,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 66,
+    "name": "קרית מלאכי",
+    "luachId": 51,
+    "lat": 31.731,
+    "lng": 34.745,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 67,
+    "name": "באר שבע",
+    "luachId": 61,
+    "lat": 31.252,
+    "lng": 34.778,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 68,
+    "name": "חריש",
+    "luachId": 62,
+    "lat": 32.462,
+    "lng": 35.045,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 70,
+    "name": "בית חלקיה",
+    "luachId": 138,
+    "lat": 31.7925,
+    "lng": 34.811,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 71,
+    "name": "כרמיאל",
+    "luachId": 66,
+    "lat": 32.917,
+    "lng": 35.305,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 72,
+    "name": "נוף הגליל",
+    "luachId": 67,
+    "lat": 32.729,
+    "lng": 35.346,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 73,
+    "name": "קוממיות",
+    "luachId": 68,
+    "lat": 31.658,
+    "lng": 34.736,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 74,
+    "name": "קרית גת",
+    "luachId": 69,
+    "lat": 31.613,
+    "lng": 34.754,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 75,
+    "name": "ברוקלין",
+    "luachId": 70,
+    "lat": 40.626,
+    "lng": -73.984,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 76,
+    "name": "ירוחם",
+    "luachId": 71,
+    "lat": 30.99,
+    "lng": 34.93,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 77,
+    "name": "פאלסבורג",
+    "luachId": 72,
+    "lat": 41.7302,
+    "lng": -74.6206,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 78,
+    "name": "ליקוואוד",
+    "luachId": 73,
+    "lat": 40.0957,
+    "lng": -74.222,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 79,
+    "name": "מאנסי",
+    "luachId": 74,
+    "lat": 41.111,
+    "lng": -74.0685,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 80,
+    "name": "סטטן איילנד",
+    "luachId": 75,
+    "lat": 40.5835,
+    "lng": -74.15,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 81,
+    "name": "מיצד",
+    "luachId": 76,
+    "lat": 31.586,
+    "lng": 35.188,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 82,
+    "name": "רעננה",
+    "luachId": 77,
+    "lat": 32.184,
+    "lng": 34.871,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 83,
+    "name": "ראש העין",
+    "luachId": 78,
+    "lat": 32.0955,
+    "lng": 34.9535,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 85,
+    "name": "נווה",
+    "luachId": 81,
+    "lat": 31.162,
+    "lng": 34.33,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 87,
+    "name": "מעלה אדומים",
+    "luachId": 82,
+    "lat": 31.775,
+    "lng": 35.3,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 88,
+    "name": "קרית טבעון",
+    "luachId": 83,
+    "lat": 32.722,
+    "lng": 35.13,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 89,
+    "name": "ראשון לציון",
+    "luachId": 84,
+    "lat": 31.975,
+    "lng": 34.793,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 90,
+    "name": "חרשה",
+    "luachId": 85,
+    "lat": 31.944,
+    "lng": 35.149,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 91,
+    "name": "מיאמי",
+    "luachId": 86,
+    "lat": 25.967,
+    "lng": -80.149,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 92,
+    "name": "איתמר",
+    "luachId": 87,
+    "lat": 32.1708,
+    "lng": 35.3143,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 93,
+    "name": "תל אביב",
+    "luachId": 88,
+    "lat": 32.0855,
+    "lng": 34.782,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 94,
+    "name": "מעלה עמוס",
+    "luachId": 89,
+    "lat": 31.596,
+    "lng": 35.23,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 95,
+    "name": "קרית שמונה",
+    "luachId": 90,
+    "lat": 33.208,
+    "lng": 35.574,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 97,
+    "name": "אריאל",
+    "luachId": 92,
+    "lat": 32.1,
+    "lng": 35.17,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 98,
+    "name": "חדרה",
+    "luachId": 93,
+    "lat": 32.432,
+    "lng": 34.914,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 99,
+    "name": "באר יעקב",
+    "luachId": 94,
+    "lat": 31.942,
+    "lng": 34.836,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 100,
+    "name": "הרצליה",
+    "luachId": 95,
+    "lat": 32.16,
+    "lng": 34.84,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 101,
+    "name": "רמלה",
+    "luachId": 96,
+    "lat": 31.935,
+    "lng": 34.882,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 102,
+    "name": "עמנואל",
+    "luachId": 97,
+    "lat": 32.163,
+    "lng": 35.135,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 103,
+    "name": "ערד",
+    "luachId": 98,
+    "lat": 31.2565,
+    "lng": 35.211,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 104,
+    "name": "עכו",
+    "luachId": 99,
+    "lat": 32.93,
+    "lng": 35.09,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 105,
+    "name": "עוצם",
+    "luachId": 100,
+    "lat": 31.637,
+    "lng": 34.703,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 106,
+    "name": "נחליאל",
+    "luachId": 101,
+    "lat": 31.974,
+    "lng": 35.1415,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 107,
+    "name": "מגדל",
+    "luachId": 102,
+    "lat": 32.839,
+    "lng": 35.5,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 108,
+    "name": "גן יבנה",
+    "luachId": 103,
+    "lat": 31.78,
+    "lng": 34.7,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 109,
+    "name": "גבע בנימין אדם",
+    "luachId": 104,
+    "lat": 31.8505,
+    "lng": 35.273,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 110,
+    "name": "פריז",
+    "luachId": 105,
+    "lat": 48.8666,
+    "lng": 2.33,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 111,
+    "name": "מעלות",
+    "luachId": 106,
+    "lat": 33.013,
+    "lng": 35.283,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 112,
+    "name": "נוף איילון שעלבים",
+    "luachId": 107,
+    "lat": 31.87,
+    "lng": 34.985,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 113,
+    "name": "שטראסבורג",
+    "luachId": 108,
+    "lat": 48.5904,
+    "lng": 7.75643,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 114,
+    "name": "עקסלעבען",
+    "luachId": 109,
+    "lat": 45.69,
+    "lng": 5.90598,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 115,
+    "name": "לונדון",
+    "luachId": 110,
+    "lat": 51.6,
+    "lng": -0.1,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 116,
+    "name": "יצהר",
+    "luachId": 112,
+    "lat": 32.166,
+    "lng": 35.24,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 117,
+    "name": "קשת",
+    "luachId": 113,
+    "lat": 32.9805,
+    "lng": 35.8085,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 118,
+    "name": "בית מאיר",
+    "luachId": 114,
+    "lat": 31.7965,
+    "lng": 35.0345,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 119,
+    "name": "קיסריה",
+    "luachId": 115,
+    "lat": 32.519,
+    "lng": 34.904,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 120,
+    "name": "יוהנסבורג",
+    "luachId": 116,
+    "lat": -26.151,
+    "lng": 28.0805,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 122,
+    "name": "רנסי",
+    "luachId": 105,
+    "lat": 48.895,
+    "lng": 2.5155,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 123,
+    "name": "אומן",
+    "luachId": 118,
+    "lat": 48.7471,
+    "lng": 30.2342,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 124,
+    "name": "סנה",
+    "luachId": 119,
+    "lat": 31.8437,
+    "lng": 35.305,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 125,
+    "name": "מקסיקו - קוארנבקה",
+    "luachId": 41,
+    "lat": 18.9424,
+    "lng": -99.2,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 127,
+    "name": "שלומי",
+    "luachId": 120,
+    "lat": 33.0687,
+    "lng": 35.142,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 128,
+    "name": "כפר סבא",
+    "luachId": 121,
+    "lat": 32.1838,
+    "lng": 34.938,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 129,
+    "name": "סענט לואיס",
+    "luachId": 122,
+    "lat": 47.5879,
+    "lng": 7.566,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 131,
+    "name": "רימונים חוף השרון",
+    "luachId": 125,
+    "lat": 32.241,
+    "lng": 34.8851,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 133,
+    "name": "סאו פאולו",
+    "luachId": 126,
+    "lat": -23.5369,
+    "lng": -46.6559,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 134,
+    "name": "מלבורן",
+    "luachId": 127,
+    "lat": -37.8695,
+    "lng": 144.999,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 136,
+    "name": "אילת",
+    "luachId": 140,
+    "lat": 29.557,
+    "lng": 34.95,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 137,
+    "name": "אפרת",
+    "luachId": 16,
+    "lat": 31.6565,
+    "lng": 35.1485,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 138,
+    "name": "ישראל",
+    "luachId": 136,
+    "lat": 30.8125,
+    "lng": 34.8595,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 139,
+    "name": "יסודות",
+    "luachId": 63,
+    "lat": 31.816,
+    "lng": 34.865,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 141,
+    "name": "יבנאל",
+    "luachId": 139,
+    "lat": 32.7025,
+    "lng": 35.504,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 142,
+    "name": "גבעת וושינגטון",
+    "luachId": 136,
+    "lat": 31.817,
+    "lng": 34.7285,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 144,
+    "name": "וושינגטון די סי",
+    "luachId": 144,
+    "lat": 39.0385,
+    "lng": -77.016,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 145,
+    "name": "באלטימור",
+    "luachId": 70,
+    "lat": 39.3815,
+    "lng": -76.75,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 146,
+    "name": "גרייט נק",
+    "luachId": 70,
+    "lat": 40.8005,
+    "lng": -73.7285,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 147,
+    "name": "ריוורדייל",
+    "luachId": 70,
+    "lat": 40.9005,
+    "lng": -73.9065,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 148,
+    "name": "קליבלנד",
+    "luachId": 70,
+    "lat": 41.4995,
+    "lng": -81.6935,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 149,
+    "name": "נהריה",
+    "luachId": 145,
+    "lat": 33.017,
+    "lng": 35.102,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 151,
+    "name": "אחיה",
+    "luachId": 146,
+    "lat": 32.0605,
+    "lng": 35.328,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 152,
+    "name": "מצפה רמון",
+    "luachId": 148,
+    "lat": 30.612,
+    "lng": 34.801,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 153,
+    "name": "יוסטון",
+    "luachId": 86,
+    "lat": 29.653,
+    "lng": -95.5125,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 154,
+    "name": "דאלאס",
+    "luachId": 86,
+    "lat": 32.8965,
+    "lng": -96.789,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 155,
+    "name": "סן אנטוניו",
+    "luachId": 86,
+    "lat": 29.5685,
+    "lng": -98.515,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 156,
+    "name": "נוף הגליל",
+    "luachId": 67,
+    "lat": 32.7065,
+    "lng": 35.319,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 157,
+    "name": "כרם רעים",
+    "luachId": 150,
+    "lat": 31.959,
+    "lng": 35.1395,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 158,
+    "name": "מרסיי",
+    "luachId": 167,
+    "lat": 43.296,
+    "lng": 5.37,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 159,
+    "name": "ספסופה",
+    "luachId": 152,
+    "lat": 33.011,
+    "lng": 35.4385,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 160,
+    "name": "קרית ארבע",
+    "luachId": 151,
+    "lat": 31.544,
+    "lng": 35.122,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 161,
+    "name": "מדריד",
+    "luachId": 154,
+    "lat": 40.472,
+    "lng": -3.66,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 162,
+    "name": "פנמה סיטי",
+    "luachId": 155,
+    "lat": 8.975,
+    "lng": -79.528,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 163,
+    "name": "כוכב השחר",
+    "luachId": 156,
+    "lat": 31.9615,
+    "lng": 35.348,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 164,
+    "name": "אלעד 100",
+    "luachId": 21,
+    "lat": 32.049,
+    "lng": 34.9485,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 165,
+    "name": "בואנוס איירס",
+    "luachId": 157,
+    "lat": -34.6091,
+    "lng": -58.4394,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 166,
+    "name": "מבוא חורון",
+    "luachId": 123,
+    "lat": 31.85,
+    "lng": 35.0345,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 167,
+    "name": "בית אל",
+    "luachId": 158,
+    "lat": 31.942,
+    "lng": 35.2225,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 168,
+    "name": "אמירים",
+    "luachId": 160,
+    "lat": 32.9375,
+    "lng": 35.45,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 169,
+    "name": "ניר עציון",
+    "luachId": 40,
+    "lat": 32.6975,
+    "lng": 34.9935,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 170,
+    "name": "רמת מגשימים",
+    "luachId": 113,
+    "lat": 32.844,
+    "lng": 35.8075,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 171,
+    "name": "שדרות",
+    "luachId": 171,
+    "lat": 31.5265,
+    "lng": 34.597,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 172,
+    "name": "אלון מורה - שכם",
+    "luachId": 112,
+    "lat": 32.2335,
+    "lng": 35.34,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 173,
+    "name": "פינסק בלארוס",
+    "luachId": 169,
+    "lat": 52.1167,
+    "lng": 26.1136,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 174,
+    "name": "בני ברק",
+    "luachId": 32,
+    "lat": 32.0858,
+    "lng": 34.8349,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 176,
+    "name": "צפת רידבז",
+    "luachId": 44,
+    "lat": 32.9591,
+    "lng": 35.4985,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 179,
+    "name": "שיקגו",
+    "luachId": 181,
+    "lat": 42,
+    "lng": -87.7005,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 180,
+    "name": "מבשרת ציון",
+    "luachId": 161,
+    "lat": 31.805,
+    "lng": 35.1515,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 184,
+    "name": "עזה",
+    "luachId": 166,
+    "lat": 31.4785,
+    "lng": 34.415,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 185,
+    "name": "טירת כרמל",
+    "luachId": 179,
+    "lat": 32.7655,
+    "lng": 34.9705,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 187,
+    "name": "מנצ'סטר",
+    "luachId": 170,
+    "lat": 53.509,
+    "lng": -2.2585,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 188,
+    "name": "מצפה יריחו",
+    "luachId": 172,
+    "lat": 31.8185,
+    "lng": 35.394,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 189,
+    "name": "גמזו",
+    "luachId": 107,
+    "lat": 31.9275,
+    "lng": 34.942,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 190,
+    "name": "בת ים",
+    "luachId": 45,
+    "lat": 32.015,
+    "lng": 34.753,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 191,
+    "name": "בת עין",
+    "luachId": 16,
+    "lat": 31.6595,
+    "lng": 35.0975,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 192,
+    "name": "טורנטו קנדה",
+    "luachId": 70,
+    "lat": 43.7155,
+    "lng": -79.4315,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 193,
+    "name": "קרית יואל ניו יורק",
+    "luachId": 173,
+    "lat": 41.341,
+    "lng": -74.168,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 194,
+    "name": "חצור הגלילית",
+    "luachId": 175,
+    "lat": 32.9825,
+    "lng": 35.546,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 195,
+    "name": "חיפה עילית",
+    "luachId": 43,
+    "lat": 32.7845,
+    "lng": 35.0145,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 196,
+    "name": "אור הגנוז",
+    "luachId": 42,
+    "lat": 33.004,
+    "lng": 35.4475,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 198,
+    "name": "בית שמש - רמה ג",
+    "luachId": 37,
+    "lat": 31.704,
+    "lng": 34.9825,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 199,
+    "name": "ארץ ישראל - שדרת ההר",
+    "luachId": 16,
+    "lat": 31.779,
+    "lng": 35.226,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 200,
+    "name": "ווטרברי קונטיקט",
+    "luachId": 70,
+    "lat": 41.5915,
+    "lng": -73.033,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 201,
+    "name": "גייטסהד",
+    "luachId": 170,
+    "lat": 54.953,
+    "lng": -1.6105,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 202,
+    "name": "עלי",
+    "luachId": 16,
+    "lat": 32.07,
+    "lng": 35.263,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 203,
+    "name": "אנטוורפן",
+    "luachId": 110,
+    "lat": 51.206,
+    "lng": 4.417,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 204,
+    "name": "לוס אנג'לס",
+    "luachId": 86,
+    "lat": 34.18,
+    "lng": -118.545,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 205,
+    "name": "לינקולן",
+    "luachId": 70,
+    "lat": 44.051,
+    "lng": -71.671,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 206,
+    "name": "אוסטין טקסס",
+    "luachId": 86,
+    "lat": 30.4255,
+    "lng": -97.8605,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 207,
+    "name": "פסאיק ניו גרזי",
+    "luachId": 70,
+    "lat": 40.8565,
+    "lng": -74.1285,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 208,
+    "name": "קווינס",
+    "luachId": 70,
+    "lat": 40.7135,
+    "lng": -73.8285,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 209,
+    "name": "רמת גן",
+    "luachId": 32,
+    "lat": 32.061,
+    "lng": 34.833,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 210,
+    "name": "בית זית",
+    "luachId": 16,
+    "lat": 31.7825,
+    "lng": 35.1595,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 211,
+    "name": "רמת השרון",
+    "luachId": 189,
+    "lat": 32.143,
+    "lng": 34.838,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 213,
+    "name": "גדרה",
+    "luachId": 183,
+    "lat": 31.812,
+    "lng": 34.7805,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 214,
+    "name": "לאס וגאס",
+    "luachId": 86,
+    "lat": 36.1585,
+    "lng": -115.252,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 215,
+    "name": "וודלנד הילס ",
+    "luachId": 86,
+    "lat": 34.1725,
+    "lng": -118.564,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 216,
+    "name": "גני מודיעין",
+    "luachId": 34,
+    "lat": 31.93,
+    "lng": 35.0175,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 217,
+    "name": "קבר שמואל הנביא",
+    "luachId": 16,
+    "lat": 31.833,
+    "lng": 35.1805,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 218,
+    "name": "אמסטרדם",
+    "luachId": 184,
+    "lat": 52.332,
+    "lng": 4.8615,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 219,
+    "name": "צפת 933",
+    "luachId": 44,
+    "lat": 32.979,
+    "lng": 35.5065,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 220,
+    "name": "חוות שובאל",
+    "luachId": 186,
+    "lat": 32.0786,
+    "lng": 35.1351,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 221,
+    "name": "כלנית חרמון",
+    "luachId": 185,
+    "lat": 32.872,
+    "lng": 35.446,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 222,
+    "name": "ציריך",
+    "luachId": 110,
+    "lat": 47.3695,
+    "lng": 8.5265,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 223,
+    "name": "מקסיקו - בוסקס",
+    "luachId": 41,
+    "lat": 19.3932,
+    "lng": -99.265,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 224,
+    "name": "מקסיקו - טקמצ'לקו (כניסה)",
+    "luachId": 41,
+    "lat": 19.428,
+    "lng": -99.228,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 225,
+    "name": "מקסיקו - אינטרלומאס",
+    "luachId": 41,
+    "lat": 19.3905,
+    "lng": -99.2865,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 226,
+    "name": "מקסיקו - טקמצ'לקו (אמצע)",
+    "luachId": 41,
+    "lat": 19.4135,
+    "lng": -99.2445,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 227,
+    "name": "עפולה עילית",
+    "luachId": 26,
+    "lat": 32.6305,
+    "lng": 35.326,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 228,
+    "name": "עפולה גבעת המורה",
+    "luachId": 26,
+    "lat": 32.6215,
+    "lng": 35.3325,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 229,
+    "name": "הברונקס",
+    "luachId": 70,
+    "lat": 40.8465,
+    "lng": -73.8785,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 230,
+    "name": "מבוא דותן",
+    "luachId": 187,
+    "lat": 32.4185,
+    "lng": 35.173,
+    "elevation": 275,
+    "plainEl": 0
+  },
+  {
+    "id": 231,
+    "name": "רבבה",
+    "luachId": 188,
+    "lat": 32.1205,
+    "lng": 35.125,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 232,
+    "name": "פייב טאונס",
+    "luachId": 70,
+    "lat": 40.623,
+    "lng": -73.7245,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 233,
+    "name": "דיל",
+    "luachId": 70,
+    "lat": 40.2525,
+    "lng": -74.001,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 234,
+    "name": "אלון שבות",
+    "luachId": 192,
+    "lat": 31.6535,
+    "lng": 35.127,
+    "elevation": 0,
+    "plainEl": 0
+  },
+  {
+    "id": 235,
+    "name": "כפר שמאי",
+    "luachId": 152,
+    "lat": 32.961,
+    "lng": 35.4565,
+    "elevation": 0,
+    "plainEl": 0
+  }
+]

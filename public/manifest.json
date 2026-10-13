@@ -1,0 +1,41 @@
+{
+  "name": "מחולל מודעות בית כנסת",
+  "short_name": "מודעות",
+  "description": "מחולל מודעות זמני תפילה חכם לבתי כנסת — YL.AI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f4ec",
+  "theme_color": "#1a2e5a",
+  "lang": "he",
+  "dir": "rtl",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://media.base44.com/images/public/user_68540e8149644804602ba561/cb30b9f06_2.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://media.base44.com/images/public/user_68540e8149644804602ba561/cb30b9f06_2.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "זמני תפילה",
+      "short_name": "תפילה",
+      "url": "/",
+      "description": "צור מודעת זמני תפילה"
+    },
+    {
+      "name": "דף ציבורי",
+      "short_name": "ציבורי",
+      "url": "/public",
+      "description": "צפה במודעה הציבורית"
+    }
+  ]
+}

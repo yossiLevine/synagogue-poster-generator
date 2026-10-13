@@ -1,0 +1,430 @@
+import { useState, useEffect, useRef } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Trash2, Plus, Zap, Save, FolderOpen, Minus, GripVertical } from 'lucide-react';
+import { saveProfile, loadProfiles, deleteProfile } from '@/lib/synagogueProfiles';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+
+// Default rules for Shabbat
+export const DEFAULT_SHABBAT_RULES = [
+  { label: 'מנחה ערב שבת', baseZman: 'plagHaMincha',        offsetMinutes: 0,   direction: 'after',  dayTag: 'A' },
+  { label: 'קבלת שבת',     baseZman: 'candleLighting',      offsetMinutes: 0,   direction: 'after',  dayTag: 'A' },
+  { label: 'מעריב',        baseZman: 'tzeitFriday7083deg',   offsetMinutes: 5,   direction: 'after',  dayTag: 'A' },
+  { label: 'שחרית',        baseZman: 'sunriseShabbat',       offsetMinutes: 30,  direction: 'after',  dayTag: 'B' },
+  { label: 'מנחה',         baseZman: 'minchaGedolaShabbat',  offsetMinutes: 30,  direction: 'after',  dayTag: 'B' },
+  { label: 'מעריב מוצ"ש', baseZman: 'tzeit7083deg',         offsetMinutes: 0,   direction: 'after',  dayTag: 'B' },
+];
+
+// Default rules for Yom Tov
+export const DEFAULT_YOM_TOV_RULES = [
+  { label: 'מנחה ערב יו"ט', baseZman: 'plagHaMincha',       offsetMinutes: 0,   direction: 'after',  dayTag: 'A' },
+  { label: 'מעריב ערב יו"ט', baseZman: 'tzeitFriday7083deg', offsetMinutes: 5,   direction: 'after',  dayTag: 'A' },
+  { label: 'שחרית',          baseZman: 'sunriseShabbat',     offsetMinutes: 30,  direction: 'after',  dayTag: 'B' },
+  { label: 'מוסף',           baseZman: 'chatzotShabbat',     offsetMinutes: -30, direction: 'before', dayTag: 'B' },
+  { label: 'מנחה',           baseZman: 'minchaGedolaShabbat',offsetMinutes: 30,  direction: 'after',  dayTag: 'B' },
+  { label: 'מעריב',          baseZman: 'tzeit7083deg',       offsetMinutes: 0,   direction: 'after',  dayTag: 'B' },
+];
+
+export const BASE_ZMANIM_OPTIONS = [
+  // שישי
+  { key: 'alotHaShachar',       label: 'עלות השחר (שישי)' },
+  { key: 'sunrise',             label: 'הנץ החמה (שישי)' },
+  { key: 'sofZmanShma',         label: 'סוף זמן ק"ש גר"א (שישי)' },
+  { key: 'sofZmanShmaMGA',      label: 'סוף זמן ק"ש מג"א (שישי)' },
+  { key: 'sofZmanTfilla',       label: 'סוף זמן תפילה גר"א (שישי)' },
+  { key: 'sofZmanTfillaMGA',    label: 'סוף זמן תפילה מג"א (שישי)' },
+  { key: 'chatzot',             label: 'חצות היום (שישי)' },
+  { key: 'minchaGedola',        label: 'מנחה גדולה (שישי)' },
+  { key: 'minchaKetana',        label: 'מנחה קטנה (שישי)' },
+  { key: 'plagHaMincha',        label: 'פלג המנחה (שישי)' },
+  { key: 'candleLighting',      label: 'הדלקת נרות (שישי)' },
+  { key: 'sunset',              label: 'שקיעה (שישי)' },
+  { key: 'tzeitFriday7083deg',  label: 'צאת כוכבים 7.083° (שישי)' },
+  { key: 'tzeitFriday85deg',    label: 'צאת כוכבים 8.5° (שישי)' },
+  // שבת
+  { key: 'sunriseShabbat',      label: 'הנץ החמה (שבת)' },
+  { key: 'sofZmanShmaShabbat',  label: 'סוף זמן ק"ש גר"א (שבת)' },
+  { key: 'sofZmanShmaMGAShabbat',label: 'סוף זמן ק"ש מג"א (שבת)' },
+  { key: 'sofZmanTfillaShabbat',label: 'סוף זמן תפילה גר"א (שבת)' },
+  { key: 'sofZmanTfillaMGAShabbat',label:'סוף זמן תפילה מג"א (שבת)' },
+  { key: 'chatzotShabbat',      label: 'חצות היום (שבת)' },
+  { key: 'minchaGedolaShabbat', label: 'מנחה גדולה (שבת)' },
+  { key: 'minchaKetanaShabbat', label: 'מנחה קטנה (שבת)' },
+  { key: 'plagHaMinchaShabbat', label: 'פלג המנחה (שבת)' },
+  { key: 'sunsetShabbat',       label: 'שקיעה (שבת)' },
+  { key: 'tzeit7083deg',        label: 'צאת שבת 7.083° (שבת)' },
+  { key: 'tzeit85deg',          label: 'צאת שבת 8.5° (שבת)' },
+  { key: 'tzeit72min',          label: 'צאת שבת ר"ת 72 דק\' (שבת)' },
+  { key: 'fixed',               label: '🕐 שעה קבועה' },
+];
+
+const RULES_LS_KEY = 'synagogue_relative_rules';
+
+import { getSynagogueId, loadRulesFromDB, saveRulesToDB } from '@/lib/synagogueDB';
+import { resolveZmanIso, applyOffset } from '@/lib/zmanimApi';
+
+function migrateRules(rules) {
+  // Fix: tzeit7083deg/tzeit85deg with dayTag 'A' should use the Friday variants
+  return rules.map(rule => {
+    if (rule.dayTag === 'A' && rule.baseZman === 'tzeit7083deg') {
+      return { ...rule, baseZman: 'tzeitFriday7083deg' };
+    }
+    if (rule.dayTag === 'A' && rule.baseZman === 'tzeit85deg') {
+      return { ...rule, baseZman: 'tzeitFriday85deg' };
+    }
+    return rule;
+  });
+}
+
+export function loadRules() {
+  // sync fallback for initial render
+  try {
+    const raw = JSON.parse(localStorage.getItem(RULES_LS_KEY) || '[]');
+    return migrateRules(raw);
+  } catch { return []; }
+}
+
+export async function loadRulesAsync() {
+  if (getSynagogueId()) {
+    try {
+      const dbData = await loadRulesFromDB();
+      if (dbData && dbData.length > 0) {
+        const migrated = migrateRules(dbData);
+        localStorage.setItem(RULES_LS_KEY, JSON.stringify(migrated));
+        return migrated;
+      }
+    } catch {}
+  }
+  return loadRules();
+}
+
+export async function saveRules(rules) {
+  localStorage.setItem(RULES_LS_KEY, JSON.stringify(rules));
+  if (getSynagogueId()) {
+    try {
+      await saveRulesToDB(rules);
+    } catch (e) {
+      console.error('Failed to save rules to DB:', e);
+      throw new Error('שגיאה בשמירה לשרת - אנא נסה שוב');
+    }
+  }
+}
+
+// timesA = zmanim for day A (Friday), timesB = zmanim for day B (Shabbat)
+// Uses resolveZmanIso from zmanimApi (SSOT) — no duplicate key mapping here
+export function calcPrayerRowsFromRules(rules, timesA, shabbatInfo, timesB = null) {
+  return rules
+    .map(rule => {
+      if (rule.baseZman === 'fixed') {
+        if (!rule.fixedTime) return null;
+        return { label: rule.label, time: rule.fixedTime, dayTag: rule.dayTag || 'A' };
+      }
+
+      // Use SSOT: resolveZmanIso handles source routing (timesA vs timesB) via ZMANIM_META
+      const iso = resolveZmanIso(rule.baseZman, timesA || {}, timesB || {});
+      if (!iso) return null;
+
+      const offset = parseInt(rule.offsetMinutes || 0, 10);
+      const dayTag = rule.dayTag || 'A';
+      const roundDir = dayTag === 'A' ? 'down' : 'up';
+      const time = applyOffset(iso, offset, roundDir);
+      return { label: rule.label, time, dayTag };
+    })
+    .filter(Boolean);
+}
+
+export default function RelativeZmanimConfig({ onApply, isYomTov = false }) {
+  const [rules, setRules] = useState(() => {
+    const saved = loadRules();
+    return saved.length > 0 ? saved : (isYomTov ? DEFAULT_YOM_TOV_RULES : DEFAULT_SHABBAT_RULES);
+  });
+  // Ensure stable IDs for drag-and-drop — use ref so IDs never change on re-render
+  const ruleIdsRef = useRef(rules.map((_, i) => `rule-id-${Date.now()}-${i}`));
+  const getRuleId = (i) => {
+    if (!ruleIdsRef.current[i]) {
+      ruleIdsRef.current[i] = `rule-id-${Date.now()}-${i}`;
+    }
+    return ruleIdsRef.current[i];
+  };
+
+  // When isYomTov changes and no custom rules saved, reload defaults
+  useEffect(() => {
+    const saved = loadRules();
+    if (saved.length === 0) {
+      setRules(isYomTov ? DEFAULT_YOM_TOV_RULES : DEFAULT_SHABBAT_RULES);
+    }
+  }, [isYomTov]);
+  const [open, setOpen] = useState(true);
+  const [profileName, setProfileName] = useState('');
+  const [profiles, setProfiles] = useState(() => loadProfiles());
+
+  // Auto-tag: zmanim that belong to "day A" (Friday/Erev YomTov)
+  const DAY_A_ZMANIM = new Set(['alotHaShachar', 'sunrise', 'sofZmanShma', 'chatzot', 'minchaGedola', 'plagHaMincha', 'candleLighting', 'sunset', 'tzeitFriday7083deg', 'tzeitFriday85deg']);
+
+  const loadDefaults = async () => {
+    const defaults = isYomTov ? DEFAULT_YOM_TOV_RULES : DEFAULT_SHABBAT_RULES;
+    ruleIdsRef.current = defaults.map((_, i) => `rule-id-${Date.now()}-${i}`);
+    setRules(defaults);
+    try {
+      await saveRules(defaults);
+      onApply(defaults);
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const addRule = () => setRules([...rules, { label: '', baseZman: 'sunset', offsetMinutes: 0, direction: 'after', dayTag: 'A' }]);
+
+  const updateRule = (i, field, val) => {
+    const updated = [...rules];
+    const rule = { ...updated[i], [field]: val };
+    // Auto-tag dayTag when baseZman changes, unless user manually changed it
+    if (field === 'baseZman' && !updated[i]._manualDayTag) {
+      rule.dayTag = DAY_A_ZMANIM.has(val) ? 'A' : 'B';
+    }
+    updated[i] = rule;
+    setRules(updated);
+  };
+
+  // Toggle direction (before/after) and update offsetMinutes sign accordingly
+  const toggleDirection = (i) => {
+    const rule = rules[i];
+    const newDir = rule.direction === 'before' ? 'after' : 'before';
+    const absVal = Math.abs(parseInt(rule.offsetMinutes || 0, 10));
+    const newOffset = newDir === 'before' ? -absVal : absVal;
+    const updated = [...rules];
+    updated[i] = { ...updated[i], direction: newDir, offsetMinutes: newOffset };
+    setRules(updated);
+  };
+
+  const updateMinutes = (i, val) => {
+    const rule = rules[i];
+    if (val === '' || val === '-') {
+      updateRule(i, 'offsetMinutes', 0);
+      return;
+    }
+    const num = parseInt(val, 10);
+    if (isNaN(num)) return;
+    const absVal = Math.abs(num);
+    const isNegative = String(val).startsWith('-') || rule.direction === 'before';
+    const signed = isNegative ? -absVal : absVal;
+    const updated = [...rules];
+    updated[i] = { ...updated[i], direction: signed < 0 ? 'before' : 'after', offsetMinutes: signed };
+    setRules(updated);
+  };
+
+  const removeRule = (i) => setRules(rules.filter((_, idx) => idx !== i));
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const items = Array.from(rules);
+    const [removed] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, removed);
+    // Also reorder the stable IDs to match
+    const ids = Array.from(ruleIdsRef.current);
+    const [removedId] = ids.splice(result.source.index, 1);
+    ids.splice(result.destination.index, 0, removedId);
+    ruleIdsRef.current = ids;
+    setRules(items);
+  };
+
+  const handleSave = async () => {
+   try {
+     await saveRules(rules);
+     onApply(rules);
+     setOpen(false);
+   } catch (e) {
+     alert(e.message);
+   }
+  };
+
+  const handleSaveProfile = () => {
+    if (!profileName.trim()) return;
+    saveProfile(profileName.trim(), { rules });
+    setProfiles(loadProfiles());
+    setProfileName('');
+    setOpen(true);
+  };
+
+  const handleLoadProfile = async (name) => {
+   const p = loadProfiles()[name];
+   if (p?.rules) { 
+     setRules(p.rules);
+     setOpen(true);
+     try {
+       await saveRules(p.rules);
+       onApply(p.rules);
+     } catch (e) {
+       alert(e.message);
+     }
+   }
+  };
+
+  const handleDeleteProfile = (name) => {
+   if (!window.confirm(`למחוק את פרופיל "${name}"?`)) return;
+   deleteProfile(name);
+   setProfiles(loadProfiles());
+  };
+
+  return (
+    <div dir="rtl" className="border border-border rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-muted/40 hover:bg-muted/60 transition-colors"
+      >
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <Zap className="w-4 h-4 text-primary" />
+          חישוב אוטומטי לפי זמני היום
+        </div>
+        <span className="text-xs text-muted-foreground">{rules.length} חוקים</span>
+      </button>
+
+      {open && (
+        <div className="p-4 space-y-4 border-t border-border">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">הגדר דקות לפני/אחרי זמן יומי. המערכת תחשב כל שבוע אוטומטית.</p>
+            <button
+              onClick={loadDefaults}
+              className="text-xs text-primary underline hover:no-underline whitespace-nowrap flex-shrink-0 mr-2"
+            >
+              {isYomTov ? '✨ טען ברירת מחדל יו"ט' : '✨ טען ברירת מחדל שבת'}
+            </button>
+          </div>
+
+          {/* Profile loader */}
+          {Object.keys(profiles).length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-semibold">פרופיל שמור:</p>
+              {Object.keys(profiles).map(name => (
+                <div key={name} className="flex items-center justify-between bg-muted/40 rounded px-2 py-1">
+                  <button onClick={() => handleLoadProfile(name)} className="text-sm text-primary hover:underline flex items-center gap-1">
+                    <FolderOpen className="w-3.5 h-3.5" /> {name}
+                  </button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteProfile(name)}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Rules */}
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="rules-list">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                  {rules.map((rule, i) => (
+                    <Draggable key={getRuleId(i)} draggableId={getRuleId(i)} index={i}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`border border-border rounded-lg p-2 space-y-2 bg-card ${snapshot.isDragging ? 'shadow-lg opacity-90' : ''}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div {...provided.dragHandleProps} className="cursor-grab text-muted-foreground hover:text-foreground flex-shrink-0 p-2 -mr-2 active:bg-muted/50 rounded-lg">
+                              <GripVertical className="w-4 h-4" />
+                            </div>
+                            <Input
+                              value={rule.label}
+                              onChange={e => updateRule(i, 'label', e.target.value)}
+                              placeholder="שם תפילה"
+                              className="flex-1 text-sm text-right"
+                              dir="rtl"
+                            />
+                            <Button variant="ghost" size="icon" onClick={() => removeRule(i)} className="text-destructive h-8 w-8 flex-shrink-0">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Select value={rule.baseZman} onValueChange={v => updateRule(i, 'baseZman', v)}>
+                              <SelectTrigger className="flex-1 min-w-[120px] text-sm"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                {BASE_ZMANIM_OPTIONS.map(z => <SelectItem key={z.key} value={z.key}>{z.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+
+                            {rule.baseZman === 'fixed' ? (
+                              <Input
+                                type="time"
+                                value={rule.fixedTime || ''}
+                                onChange={e => updateRule(i, 'fixedTime', e.target.value)}
+                                className="w-28 text-sm text-center font-frank"
+                              />
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => toggleDirection(i)}
+                                  className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border text-xs font-bold transition-colors ${
+                                    Math.abs(parseInt(rule.offsetMinutes || 0, 10)) === 0
+                                      ? 'bg-blue-100 border-blue-300 text-blue-700'
+                                      : rule.direction === 'before'
+                                        ? 'bg-orange-100 border-orange-300 text-orange-700'
+                                        : 'bg-green-100 border-green-300 text-green-700'
+                                  }`}
+                                  title="שנה כיוון (לפני / אחרי / בדיוק בזמן)"
+                                >
+                                  {Math.abs(parseInt(rule.offsetMinutes || 0, 10)) === 0 ? (
+                                    'בזמן'
+                                  ) : rule.direction === 'before' ? (
+                                    <><Minus className="w-3 h-3" /> לפני</>
+                                  ) : (
+                                    <><Plus className="w-3 h-3" /> אחרי</>
+                                  )}
+                                </button>
+                                <div className="flex items-center gap-1">
+                                  <Input
+                                    type="number"
+                                    value={Math.abs(parseInt(rule.offsetMinutes || 0, 10))}
+                                    onChange={e => updateMinutes(i, e.target.value)}
+                                    className="w-14 text-sm text-center"
+                                    min="0"
+                                    max="180"
+                                  />
+                                  <span className="text-xs text-muted-foreground whitespace-nowrap">דק'</span>
+                                </div>
+                              </>
+                            )}
+
+                            <button
+                              onClick={() => {
+                                const updated = [...rules];
+                                updated[i] = { ...updated[i], dayTag: updated[i].dayTag === 'A' ? 'B' : 'A', _manualDayTag: true };
+                                setRules(updated);
+                              }}
+                              className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition-colors flex-shrink-0 ${(rule.dayTag || 'A') === 'A' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-purple-100 border-purple-300 text-purple-700'}`}
+                              title="יום א׳ (שישי/ערב חג) או יום ב׳ (שבת/חג)"
+                            >
+                              יום {(rule.dayTag || 'A') === 'A' ? 'א׳' : 'ב׳'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+
+          <Button variant="outline" size="sm" onClick={addRule} className="gap-1">
+            <Plus className="w-3.5 h-3.5" /> הוסף חוק
+          </Button>
+
+          {/* Save profile */}
+          <div className="flex gap-2 pt-1 border-t border-border">
+            <Input value={profileName} onChange={e => setProfileName(e.target.value)} placeholder="שם הפרופיל..." className="flex-1 text-right text-sm" dir="rtl" />
+            <Button variant="outline" size="sm" onClick={handleSaveProfile} className="gap-1 flex-shrink-0">
+              <Save className="w-3.5 h-3.5" /> שמור פרופיל
+            </Button>
+          </div>
+
+          <Button size="sm" onClick={handleSave} className="w-full">שמור וחשב תפילות</Button>
+        </div>
+      )}
+    </div>
+  );
+}
