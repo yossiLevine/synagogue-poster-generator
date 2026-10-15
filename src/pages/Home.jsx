@@ -403,7 +403,7 @@ export default function Home({ synagogueId = null }) {
 
   const menuItems = [
     { id: 'content', icon: BookOpen, label: 'עריכת תוכן' },
-    { id: 'settings', icon: Settings, label: 'הגדרות בית כנסת ⚙️', action: () => setSettingsModalOpen(true) },
+    { id: 'settings', icon: Settings, label: 'הגדרות בית כנסת ⚙️' },
     { id: 'kiosk', icon: Monitor, label: 'מסך בית כנסת 🖥️', action: () => setPresentationMode(true) },
     { id: 'signs', icon: DoorClosed, label: 'שלטים לדלת / קידוש 🚪', action: () => { setSelectedSignData(null); setSignModalOpen(true); } },
     { id: 'design', icon: Palette, label: 'עיצוב ומראה' },
@@ -430,21 +430,28 @@ export default function Home({ synagogueId = null }) {
       {/* 2026 Glassmorphic Header */}
       <header className="border-b border-border/80 bg-card/80 backdrop-blur-xl sticky top-0 z-30 flex-shrink-0 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div 
+            className="flex items-center gap-3 cursor-pointer group" 
+            onClick={() => { setActiveMenu('settings'); setEditorVisible(true); }}
+            title="לחץ לפתיחת פרופיל והגדרות בית הכנסת"
+          >
             <img
               src={getConfig().logoUrl || 'https://media.base44.com/images/public/user_68540e8149644804602ba561/cb30b9f06_2.jpg'}
               alt="לוגו"
-              className="rounded-full object-cover border border-border ring-2 ring-primary/20 w-10 h-10 shadow-xs"
+              className="rounded-full object-cover border border-border ring-2 ring-primary/20 w-10 h-10 shadow-xs group-hover:ring-primary/50 transition-all"
             />
             <div>
               <div className="flex items-center gap-2">
-                <p className="font-frank text-base font-bold text-primary leading-none">מחולל מודעות</p>
+                <p className="font-frank text-base font-bold text-primary leading-none group-hover:underline">מחולל מודעות</p>
                 <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   עתים לבינה
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">{getConfig().synagogueName || synagogue?.name || 'בית הכנסת'}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 group-hover:text-primary transition-colors flex items-center gap-1">
+                <span>{getConfig().synagogueName || synagogue?.name || 'בית הכנסת'}</span>
+                <span className="text-[10px] opacity-70 underline">⚙️ הגדרות</span>
+              </p>
               <p className="text-[11px] text-amber-700 dark:text-amber-300 font-semibold lg:hidden flex items-center gap-1 mt-0.5">
                 <Calendar className="w-3 h-3 text-amber-600 inline" />
                 <span>{todayHebrew}</span>
@@ -548,16 +555,13 @@ export default function Home({ synagogueId = null }) {
                 );
               })}
             </nav>
-            <div className="mt-auto pt-3">
-              <SynagogueSettings synagogueId={synagogueId} />
-            </div>
           </div>
         </aside>
 
         {/* CENTER COLUMN: Editor Panel */}
         {editorVisible && (
           <main className="flex-1 border-l border-border/80 bg-background lg:h-[calc(100vh-65px)] overflow-y-auto pb-8">
-            <div className="max-w-xl mx-auto p-4 sm:p-6 space-y-5">
+            <div className={`${activeMenu === 'settings' ? 'max-w-3xl' : 'max-w-xl'} mx-auto p-4 sm:p-6 space-y-5 transition-all`}>
               
               {/* Generate actions always visible at the top of the editor */}
               <div className="bg-card/90 backdrop-blur-md border border-border/80 p-4 rounded-2xl shadow-sm space-y-3 sticky top-0 z-10">
@@ -753,6 +757,21 @@ export default function Home({ synagogueId = null }) {
                     <StatsPanel />
                     <hr className="border-border" />
                     <FeatureRequestForm />
+                  </div>
+                </div>
+
+                <div className={activeMenu === 'settings' ? 'block' : 'hidden'}>
+                  <div className="bg-card border border-border rounded-2xl p-5 sm:p-7 space-y-6 shadow-xs">
+                    <div className="border-b border-border pb-3">
+                      <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2.5">
+                        <Settings className="w-6 h-6 text-primary" />
+                        פרופיל והגדרות בית הכנסת
+                      </h2>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                        ניהול פרטי בית הכנסת, מיקום אופק עתים לבינה, וחוקי חישוב זמני התפילה האוטומטיים
+                      </p>
+                    </div>
+                    <SynagogueSettings synagogueId={synagogueId} embedded={true} />
                   </div>
                 </div>
               </div>
