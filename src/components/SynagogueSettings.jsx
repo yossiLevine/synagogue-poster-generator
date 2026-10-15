@@ -6,9 +6,9 @@ import { Settings, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { getConfig, loadConfig, saveConfig, PRESET_HORIZONS } from '@/lib/synagogueConfig';
 import { getSynagogueId } from '@/lib/synagogueDB';
 
-export default function SynagogueSettings({ onChange, synagogueId, onSuccess }) {
+export default function SynagogueSettings({ onChange, synagogueId, onSuccess, defaultOpen = false }) {
   const activeSynId = synagogueId || getSynagogueId();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [config, setConfig] = useState(() => getConfig());
   const [customHorizon, setCustomHorizon] = useState(false);
   const [savedBadge, setSavedBadge] = useState(false);

@@ -40,13 +40,11 @@ export default function CreateGabaiForm({ synagogueId, onSuccess, onCancel }) {
     setLoading(true);
 
     try {
-      const { initializeApp } = await import('firebase/app');
+      const { initializeApp, getApps, deleteApp } = await import('firebase/app');
       const { getAuth, createUserWithEmailAndPassword, signOut } = await import('firebase/auth');
-      const { getFirestore, doc, setDoc } = await import('firebase/firestore');
+      const { doc, setDoc } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
       
-      // Firebase auth expects email, but Gabais login with username.
-      // We force the auth email to be username@synagogue.local 
-      // The real email is just stored in the DB for contact/password reset later.
       const loginEmail = `${formData.username.toLowerCase().trim()}@synagogue.local`;
 
       const firebaseConfig = {
@@ -58,16 +56,22 @@ export default function CreateGabaiForm({ synagogueId, onSuccess, onCancel }) {
         messagingSenderId: "200223463672"
       };
 
+      const existingSecondary = getApps().find(app => app.name === 'Secondary');
+      if (existingSecondary) {
+        await deleteApp(existingSecondary);
+      }
       const secondaryApp = initializeApp(firebaseConfig, "Secondary");
-      const secondaryAuth = getAuth(secondaryApp);
-      const mainDb = getFirestore(initializeApp(firebaseConfig)); // Main db reference
+      let userCredential;
+      try {
+        const secondaryAuth = getAuth(secondaryApp);
+        userCredential = await createUserWithEmailAndPassword(secondaryAuth, loginEmail, formData.password);
+        await signOut(secondaryAuth);
+      } finally {
+        await deleteApp(secondaryApp);
+      }
 
-      // Create user
-      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, loginEmail, formData.password);
-      await signOut(secondaryAuth); // Sign out of secondary instance
-
-      // Save gabai profile
-      await setDoc(doc(mainDb, 'gabais', loginEmail), {
+      // Save gabai profile to main database
+      await setDoc(doc(db, 'gabais', loginEmail), {
         uid: userCredential.user.uid,
         synagogue_id: synagogueId,
         username: formData.username.trim(),

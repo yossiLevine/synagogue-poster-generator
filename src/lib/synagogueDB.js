@@ -187,3 +187,13 @@ export async function loadDraftFromDB() {
 export async function saveDraftToDB(draft) {
   await updateField('editor_draft', draft);
 }
+
+// ----- Synagogue Default Prayer Rows -----
+
+export async function loadDefaultPrayersFromDB(targetId = null) {
+  return readField('synagogue_default_prayers', null, targetId);
+}
+
+export async function saveDefaultPrayersToDB(prayers, targetId = null) {
+  await updateField('synagogue_default_prayers', prayers, targetId);
+}

@@ -7,7 +7,7 @@ import {
   resolveZmanIso,
   applyOffset,
 } from './zmanimApi';
-import { DEFAULT_RULES, DEFAULT_DISPLAY_ZMANIM } from './synagogueConfig';
+import { DEFAULT_RULES, DEFAULT_DISPLAY_ZMANIM, loadSynagogueDefaultPrayers } from './synagogueConfig';
 
 // ─── חישוב שורות תפילה מכללים ───────────────────────────────────────────────
 
@@ -58,12 +58,37 @@ export async function generatePosterPayload({
   const friday = targetDate || getNextFriday();
   const shabbat = addDays(friday, 1);
 
-  const [{ zmanimA, zmanimB, hebrewDateA, hebrewDateB }, shabbatInfo] = await Promise.all([
+  const [{ zmanimA, zmanimB, hebrewDateA, hebrewDateB }, shabbatInfo, synDefaultPrayers] = await Promise.all([
     fetchZmanimTwoDays(friday, shabbat),
     fetchShabbatInfo(friday),
+    loadSynagogueDefaultPrayers().catch(() => null),
   ]);
 
-  const prayerRows = calcPrayerRowsFromRules(rules, zmanimA, shabbatInfo, zmanimB);
+  let prayerRows = [];
+  if (synDefaultPrayers && Array.isArray(synDefaultPrayers) && synDefaultPrayers.length > 0) {
+    prayerRows = synDefaultPrayers.map((p, idx) => {
+      if (p.isHeader || p.isNote) return { ...p, id: p.id || `def-${idx}` };
+      if (p.fixedTime) return { ...p, id: p.id || `def-${idx}`, time: p.fixedTime, visible: p.visible !== false };
+      const matchedRule = rules.find(r => r.label === p.label) || (p.baseZman ? p : null);
+      if (matchedRule && matchedRule.baseZman) {
+        let time = '';
+        if (matchedRule.baseZman === 'candleLighting' && shabbatInfo?.candleLightingIso) {
+          time = applyOffset(shabbatInfo.candleLightingIso, parseInt(matchedRule.offsetMinutes || 0, 10), 'down');
+        } else {
+          const iso = resolveZmanIso(matchedRule.baseZman, zmanimA || {}, zmanimB || {});
+          if (iso) {
+            const roundDir = (matchedRule.dayTag || p.dayTag) === 'A' ? 'down' : 'up';
+            time = applyOffset(iso, parseInt(matchedRule.offsetMinutes || 0, 10), roundDir);
+          }
+        }
+        return { ...p, id: p.id || `def-${idx}`, time: time || p.time || '', visible: p.visible !== false };
+      }
+      return { ...p, id: p.id || `def-${idx}`, visible: p.visible !== false };
+    });
+  } else {
+    prayerRows = calcPrayerRowsFromRules(rules, zmanimA, shabbatInfo, zmanimB);
+  }
+
   const zmanimDisplay = buildZmanimForDisplay(zmanimA, shabbatInfo, displayZmanim, zmanimB, {});
 
   return {
@@ -80,6 +105,7 @@ export async function generatePosterPayload({
     specialShabbat: shabbatInfo.specialShabbat,
     prayerRows,
     zmanimDisplay,
+    showZmanimOnPoster: false, // Default is OFF
     announcements: '',
     weeklyQuote: '',
     yahrtzeits: [],

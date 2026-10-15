@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { BookOpen, Megaphone, QrCode, Monitor, Globe, Sparkles, RotateCcw, CheckCircle2, AlertTriangle, Eye, EyeOff, Palette, Share2, Settings2, Printer, Bot, DoorClosed, Video, Calendar } from 'lucide-react';
+import { BookOpen, Megaphone, QrCode, Monitor, Globe, Sparkles, RotateCcw, CheckCircle2, AlertTriangle, Eye, EyeOff, Palette, Share2, Settings, Settings2, Printer, Bot, DoorClosed, Video, Calendar } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { capturePoster } from '@/lib/posterCapture';
 import { getTodayHebrewDate, getTodayGregorianDate, getTargetPosterInfo } from '@/lib/hebrewDate';
@@ -85,6 +85,8 @@ export default function Home({ synagogueId = null }) {
   const [chatAssistantOpen, setChatAssistantOpen] = useState(false);
   const [animatedModalOpen, setAnimatedModalOpen] = useState(false);
   const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [presentationMode, setPresentationMode] = useState(false);
   const posterRef = useRef(null);
 
   // Multi-Poster Workspaces State
@@ -401,6 +403,8 @@ export default function Home({ synagogueId = null }) {
 
   const menuItems = [
     { id: 'content', icon: BookOpen, label: 'עריכת תוכן' },
+    { id: 'settings', icon: Settings, label: 'הגדרות בית כנסת ⚙️', action: () => setSettingsModalOpen(true) },
+    { id: 'kiosk', icon: Monitor, label: 'מסך בית כנסת 🖥️', action: () => setPresentationMode(true) },
     { id: 'signs', icon: DoorClosed, label: 'שלטים לדלת / קידוש 🚪', action: () => { setSelectedSignData(null); setSignModalOpen(true); } },
     { id: 'design', icon: Palette, label: 'עיצוב ומראה' },
     { id: 'share', icon: Share2, label: 'שיתוף ותפוצה' },
@@ -473,6 +477,16 @@ export default function Home({ synagogueId = null }) {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setSettingsModalOpen(true)}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs h-9 px-3 rounded-xl border-primary/30 text-primary hover:bg-primary/10 font-bold shadow-2xs"
+              title="הגדרות בית הכנסת"
+            >
+              <Settings className="w-4 h-4 text-primary" />
+              <span className="hidden sm:inline">הגדרות בית כנסת</span>
+            </Button>
             <Button 
               onClick={() => setChatAssistantOpen(true)}
               size="sm" 
@@ -866,6 +880,50 @@ export default function Home({ synagogueId = null }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Synagogue Settings Dialog Modal */}
+      <Dialog open={settingsModalOpen} onOpenChange={setSettingsModalOpen}>
+        <DialogContent className="max-w-md p-6 max-h-[90vh] overflow-y-auto" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <Settings className="w-5 h-5 text-primary" />
+              הגדרות בית הכנסת
+            </DialogTitle>
+          </DialogHeader>
+          <div className="pt-2">
+            <SynagogueSettings 
+              synagogueId={synagogueId} 
+              defaultOpen={true} 
+              onSuccess={() => setSettingsModalOpen(false)} 
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Fullscreen Digital Signage / Kiosk Mode */}
+      {presentationMode && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-start p-4 sm:p-8 overflow-y-auto"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Escape') setPresentationMode(false); }}
+        >
+          <div className="fixed top-4 left-4 z-50 flex items-center gap-2.5 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-full border border-slate-700 text-white text-xs shadow-xl">
+            <span className="flex items-center gap-1.5 font-bold text-amber-400">
+              <Monitor className="w-4 h-4" /> מצב מסך בית כנסת
+            </span>
+            <div className="w-px h-3.5 bg-slate-700" />
+            <button
+              onClick={() => setPresentationMode(false)}
+              className="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-full text-[11px] font-bold transition-all shadow-xs"
+            >
+              יציאה (Esc)
+            </button>
+          </div>
+          <div className="w-full max-w-3xl my-auto py-6 shadow-2xl rounded-2xl">
+            {renderPoster()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

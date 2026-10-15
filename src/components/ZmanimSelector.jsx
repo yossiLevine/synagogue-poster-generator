@@ -21,15 +21,15 @@ const LS_OVERRIDES_KEY = 'synagogue_zmanim_overrides';
 export function loadSavedZmanim() {
   try {
     const saved = localStorage.getItem(LS_KEY);
-    if (saved) {
+    if (saved !== null) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Remove deprecated tzeit85deg from saved selections
+      if (Array.isArray(parsed)) {
+        // Respect empty array [] if user deselected all
         return parsed.filter(k => k !== 'tzeit85deg');
       }
     }
   } catch {}
-  return DEFAULT_ZMANIM;
+  return []; // Default to empty array (no zmanim on poster by default)
 }
 
 export function loadSavedOverrides() {
@@ -44,7 +44,7 @@ export async function loadZmanim() {
   if (getSynagogueId()) {
     try {
       const dbData = await loadZmanimFromDB();
-      if (dbData) {
+      if (dbData !== null && dbData !== undefined) {
         const filtered = Array.isArray(dbData) ? dbData.filter(k => k !== 'tzeit85deg') : dbData;
         localStorage.setItem(LS_KEY, JSON.stringify(filtered));
         return filtered;

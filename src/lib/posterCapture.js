@@ -122,8 +122,7 @@ export async function capturePoster(scale = 2, targetId = 'print-area', options 
         clonedEl.style.display = 'block';
 
         if (isA4) {
-          // If content is shorter than standard A4, stretch the outer frame and distribute spacing
-          // so the poster and its decorative border fill the full A4 sheet edge-to-edge
+          // Harmoniously center the poster vertically in standard A4
           const contentH = clonedEl.scrollHeight;
           if (contentH < A4_HEIGHT) {
             clonedEl.style.minHeight = `${A4_HEIGHT}px`;
@@ -132,12 +131,13 @@ export async function capturePoster(scale = 2, targetId = 'print-area', options 
               frameNode.style.minHeight = `${A4_HEIGHT}px`;
               frameNode.style.display = 'flex';
               frameNode.style.flexDirection = 'column';
+              frameNode.style.justifyContent = 'center';
               const innerContainer = frameNode.querySelector('.relative.z-10');
               if (innerContainer) {
                 innerContainer.style.flex = '1';
                 innerContainer.style.display = 'flex';
                 innerContainer.style.flexDirection = 'column';
-                innerContainer.style.justifyContent = 'space-between';
+                innerContainer.style.justifyContent = 'center';
               }
             }
           }
@@ -149,7 +149,7 @@ export async function capturePoster(scale = 2, targetId = 'print-area', options 
       throw new Error('שגיאה בייצוא — הקנבס ריק. נסה שוב.');
     }
 
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+    const dataUrl = canvas.toDataURL(options.imageFormat || 'image/png');
 
     return {
       dataUrl,

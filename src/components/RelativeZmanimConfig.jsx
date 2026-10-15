@@ -122,6 +122,14 @@ export function calcPrayerRowsFromRules(rules, timesA, shabbatInfo, timesB = nul
         return { label: rule.label, time: rule.fixedTime, dayTag: rule.dayTag || 'A' };
       }
 
+      if (rule.baseZman === 'candleLighting') {
+        const iso = shabbatInfo?.candleLightingIso;
+        if (!iso) return null;
+        const offset = parseInt(rule.offsetMinutes || 0, 10);
+        const time = applyOffset(iso, offset, 'down');
+        return { label: rule.label, time, dayTag: rule.dayTag || 'A' };
+      }
+
       // Use SSOT: resolveZmanIso handles source routing (timesA vs timesB) via ZMANIM_META
       const iso = resolveZmanIso(rule.baseZman, timesA || {}, timesB || {});
       if (!iso) return null;

@@ -4,14 +4,14 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Loader2, Clock, Save, Copy, FolderOpen, GripVertical, AlertCircle, X, ChevronDown, RotateCcw, Camera } from 'lucide-react';
+import { Plus, Trash2, Loader2, Clock, Save, Copy, FolderOpen, GripVertical, AlertCircle, X, ChevronDown, RotateCcw, Camera, Check, Settings, Undo2, Redo2 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { fetchZmanim, fetchShabbatInfo, buildZmanimForDisplay, fetchZmanimTwoDays, getNextFriday, addDays, resolveZmanIso, formatTime, ZMANIM_META } from '@/lib/zmanimApi';
 import { saveTemplate, loadTemplates, deleteTemplate } from '@/lib/templates';
 import ZmanimSelector, { DEFAULT_ZMANIM, loadSavedZmanim, loadZmanim, loadSavedOverrides, loadZmanimOverrides } from './ZmanimSelector';
 import RelativeZmanimConfig, { loadRules, loadRulesAsync, calcPrayerRowsFromRules } from './RelativeZmanimConfig';
-import { DEFAULT_RULES } from '@/lib/synagogueConfig';
+import { DEFAULT_RULES, loadSynagogueDefaultPrayers, saveSynagogueDefaultPrayers } from '@/lib/synagogueConfig';
 import YahrtzeitPanel from './YahrtzeitPanel';
 import WeekdayTimesSection from './WeekdayTimesSection';
 import HalachaCalculator from './HalachaCalculator';
@@ -51,6 +51,8 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
   const [eruvTavshilinText, setEruvTavshilinText] = useState(initialData?.eruvTavshilinText || 'תזכורת: נא להניח עירוב תבשילין בערב החג');
   const [showYizkorBadge, setShowYizkorBadge] = useState(initialData?.showYizkorBadge !== undefined ? initialData.showYizkorBadge : false);
   const [yizkorBadgeText, setYizkorBadgeText] = useState(initialData?.yizkorBadgeText || 'סדר תפילת יזכור והזכרת נשמות יתקיים בשחרית');
+  const [showZmanimOnPoster, setShowZmanimOnPoster] = useState(initialData?.showZmanimOnPoster !== undefined ? initialData.showZmanimOnPoster : false);
+  const [defaultSavedBadge, setDefaultSavedBadge] = useState(false);
   const [holidayNotice, setHolidayNotice] = useState(null);
   const [isTwoDay, setIsTwoDay] = useState(initialData?.isTwoDay || false);
   const [imageImporterOpen, setImageImporterOpen] = useState(false);
@@ -59,6 +61,7 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
   useEffect(() => {
     if (initialData && initialData.type === 'prayer') {
       if (initialData.parasha !== undefined && initialData.parasha !== parasha) setParasha(initialData.parasha);
+      if (initialData.showZmanimOnPoster !== undefined) setShowZmanimOnPoster(initialData.showZmanimOnPoster);
       if (initialData.prayerRows && JSON.stringify(initialData.prayerRows) !== JSON.stringify(prayerRows.filter(r => r.visible))) {
         setPrayerRows(initialData.prayerRows);
       }
@@ -79,6 +82,7 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
 
   useEffect(() => {
     if (dataToLoad && dataToLoad.type === 'prayer') {
+      if (dataToLoad.showZmanimOnPoster !== undefined) setShowZmanimOnPoster(dataToLoad.showZmanimOnPoster);
       if (dataToLoad.parasha !== undefined) setParasha(dataToLoad.parasha);
       if (dataToLoad.announcements !== undefined) setAnnouncements(dataToLoad.announcements);
       if (dataToLoad.structuredAnnouncements !== undefined) setStructuredAnnouncements(dataToLoad.structuredAnnouncements);
@@ -151,12 +155,13 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     // Update the date inputs if they weren't set yet
     if (!dateA) { setSelectedDate(effectiveDateA); setSelectedDateB(effectiveDateB); }
 
-    const [{ zmanimA, zmanimB: zB, hebrewDateA: hdA, hebrewDateB: hdB }, shabbatData, rules, savedZmanim, savedOverrides] = await Promise.all([
+    const [{ zmanimA, zmanimB: zB, hebrewDateA: hdA, hebrewDateB: hdB }, shabbatData, rules, savedZmanim, savedOverrides, synDefaultPrayers] = await Promise.all([
       fetchZmanimTwoDays(effectiveDateA, effectiveDateB),
       fetchShabbatInfo(effectiveDateA),
       loadRulesAsync(),
       loadZmanim(),
       loadZmanimOverrides(),
+      loadSynagogueDefaultPrayers().catch(() => null),
     ]);
 
     setZmanim(zmanimA);
@@ -197,9 +202,34 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
 
     const effectiveRules = rules.length > 0 ? rules : DEFAULT_RULES;
     setRulesExist(effectiveRules.length > 0);
-    const calculated = calcPrayerRowsFromRules(effectiveRules, zmanimA, shabbatData, zB);
+    
+    let calculated = [];
+    if (synDefaultPrayers && Array.isArray(synDefaultPrayers) && synDefaultPrayers.length > 0) {
+      calculated = synDefaultPrayers.map((p, idx) => {
+        if (p.isHeader || p.isNote) return { ...p, id: p.id || `def-${idx}` };
+        if (p.fixedTime) return { ...p, id: p.id || `def-${idx}`, time: p.fixedTime, visible: p.visible !== false };
+        const matchedRule = effectiveRules.find(r => r.label === p.label) || (p.baseZman ? p : null);
+        if (matchedRule && matchedRule.baseZman) {
+          let time = '';
+          if (matchedRule.baseZman === 'candleLighting' && shabbatData?.candleLightingIso) {
+            time = applyOffset(shabbatData.candleLightingIso, parseInt(matchedRule.offsetMinutes || 0, 10), 'down');
+          } else {
+            const iso = resolveZmanIso(matchedRule.baseZman, zmanimA || {}, zB || {});
+            if (iso) {
+              const roundDir = (matchedRule.dayTag || p.dayTag) === 'A' ? 'down' : 'up';
+              time = applyOffset(iso, parseInt(matchedRule.offsetMinutes || 0, 10), roundDir);
+            }
+          }
+          return { ...p, id: p.id || `def-${idx}`, time: time || p.time || '', visible: p.visible !== false };
+        }
+        return { ...p, id: p.id || `def-${idx}`, visible: p.visible !== false };
+      });
+    } else {
+      calculated = calcPrayerRowsFromRules(effectiveRules, zmanimA, shabbatData, zB);
+    }
+
     if (!skipAutoRows && calculated.length > 0) {
-      setPrayerRows(calculated.map((r, i) => ({ ...r, id: `auto-${i}`, visible: true })));
+      setPrayerRows(calculated.map((r, i) => ({ ...r, id: r.id || `auto-${i}`, visible: r.visible !== false })));
     }
     setZmanimLoading(false);
   };
@@ -271,6 +301,7 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     announcementsSectionTitle,
     zmanimDisplay,
     zmanimOverrides,
+    showZmanimOnPoster,
     shabbatInfo,
     yahrtzeits,
     weekdayRows,
@@ -307,20 +338,65 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parasha, prayerRows, announcements, structuredAnnouncements, announcementsSectionTitle, selectedZmanim, zmanimOverrides, zmanim, zmanimB, shabbatInfo, showHaftarah, haftarah, yahrtzeits, weekdayRows, bilingualMode, weeklyQuote, molad, isYomTov, showHebrewDate, hebrewDateA, hebrewDateB, labelDayA, labelDayB, isRoshChodesh, showRoshChodesh, specialShabbat, showSpecialShabbat, isHolidayMode, holidayName, combineWithShabbat, isTwoDay, showEruvTavshilin, eruvTavshilinText, showYizkorBadge, yizkorBadgeText]);
 
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
+
+  const commitPrayerRows = (next) => {
+    setUndoStack(prev => [...prev.slice(-20), prayerRows]);
+    setRedoStack([]);
+    setPrayerRows(next);
+  };
+
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+    const prev = undoStack[undoStack.length - 1];
+    setUndoStack(u => u.slice(0, -1));
+    setRedoStack(r => [...r, prayerRows]);
+    setPrayerRows(prev);
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+    const next = redoStack[redoStack.length - 1];
+    setRedoStack(r => r.slice(0, -1));
+    setUndoStack(u => [...u, prayerRows]);
+    setPrayerRows(next);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+        if (e.shiftKey) {
+          e.preventDefault();
+          handleRedo();
+        } else {
+          e.preventDefault();
+          handleUndo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undoStack, redoStack, prayerRows]);
+
   const updateRow = (index, field, value) => {
     const updated = [...prayerRows];
     updated[index] = { ...updated[index], [field]: value };
-    setPrayerRows(updated);
+    commitPrayerRows(updated);
   };
 
   const toggleVisible = (index) => {
     const updated = [...prayerRows];
     updated[index] = { ...updated[index], visible: !updated[index].visible };
-    setPrayerRows(updated);
+    commitPrayerRows(updated);
   };
 
   const addRow = () => {
-    setPrayerRows([...prayerRows, { id: `new-${Date.now()}-${Math.random()}`, label: '', time: '', visible: true }]);
+    commitPrayerRows([...prayerRows, { id: `new-${Date.now()}-${Math.random()}`, label: '', time: '', visible: true }]);
   };
 
   const duplicateRow = (index) => {
@@ -328,7 +404,7 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     const newRow = { ...rowToCopy, id: `new-${Date.now()}-${Math.random()}` };
     const updated = [...prayerRows];
     updated.splice(index + 1, 0, newRow);
-    setPrayerRows(updated);
+    commitPrayerRows(updated);
   };
 
   const adjustRowTime = (index, diffMinutes) => {
@@ -346,14 +422,14 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
   };
 
   const addHeader = () => {
-    setPrayerRows([...prayerRows, { id: `hdr-${Date.now()}-${Math.random()}`, label: 'שחרית שבת', time: '', visible: true, isHeader: true }]);
+    commitPrayerRows([...prayerRows, { id: `hdr-${Date.now()}-${Math.random()}`, label: 'שחרית שבת', time: '', visible: true, isHeader: true }]);
   };
 
   const addNote = () => {
-    setPrayerRows([...prayerRows, { id: `note-${Date.now()}-${Math.random()}`, label: 'קידושא רבא אחרי התפילה', time: '', visible: true, isNote: true }]);
+    commitPrayerRows([...prayerRows, { id: `note-${Date.now()}-${Math.random()}`, label: 'קידושא רבא אחרי התפילה', time: '', visible: true, isNote: true }]);
   };
 
-  const removeRow = (index) => setPrayerRows(prayerRows.filter((_, i) => i !== index));
+  const removeRow = (index) => commitPrayerRows(prayerRows.filter((_, i) => i !== index));
 
   const saveAsPermanentRule = async (row) => {
     if (!row.label || !row.time) {
@@ -391,7 +467,7 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     const items = Array.from(prayerRows);
     const [removed] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, removed);
-    setPrayerRows(items);
+    commitPrayerRows(items);
   };
 
   const handleApplyRules = (rules) => {
@@ -690,7 +766,35 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
           <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform" />
         </CollapsibleTrigger>
         <CollapsibleContent className="p-3 pt-0 space-y-3">
-          <p className="text-xs text-muted-foreground border-t border-border pt-3 mt-1">סמן/בטל ✓ להצגה במודעה · גרור לסידור מחדש</p>
+          <div className="flex items-center justify-between border-t border-border pt-3 mt-1">
+            <p className="text-xs text-muted-foreground">סמן/בטל ✓ להצגה במודעה · גרור לסידור מחדש</p>
+            <div className="flex items-center gap-1">
+              <Button 
+                type="button"
+                variant="ghost" 
+                size="sm" 
+                onClick={handleUndo} 
+                disabled={undoStack.length === 0} 
+                className="h-7 px-2 text-xs gap-1 hover:bg-muted"
+                title="בטל שינוי אחרון (Ctrl+Z)"
+              >
+                <Undo2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">בטל</span>
+              </Button>
+              <Button 
+                type="button"
+                variant="ghost" 
+                size="sm" 
+                onClick={handleRedo} 
+                disabled={redoStack.length === 0} 
+                className="h-7 px-2 text-xs gap-1 hover:bg-muted"
+                title="החזר שינוי (Ctrl+Y)"
+              >
+                <Redo2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">החזר</span>
+              </Button>
+            </div>
+          </div>
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="prayer-rows">
               {(provided) => (
@@ -801,6 +905,32 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
               📝 הערת טקסט
             </Button>
           </div>
+          <div className="space-y-1.5 mt-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={async () => {
+                try {
+                  await saveSynagogueDefaultPrayers(prayerRows);
+                  setDefaultSavedBadge(true);
+                  setTimeout(() => setDefaultSavedBadge(false), 3500);
+                } catch (e) {
+                  alert('שגיאה בשמירת ברירת המחדל: ' + e.message);
+                }
+              }}
+              className={`w-full font-medium shadow-xs transition-all text-xs flex items-center justify-center gap-1.5 py-2 ${
+                defaultSavedBadge 
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                  : 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+              }`}
+            >
+              <Save className="w-3.5 h-3.5" />
+              {defaultSavedBadge ? '✓ נשמר בהצלחה כברירת מחדל קבועה!' : '💾 קבע רשימת תפילות זו כברירת מחדל קבועה לבית הכנסת'}
+            </Button>
+            <p className="text-[10px] text-muted-foreground text-center">
+              רשימת תפילות זו תוצג כברירת מחדל בכל שבוע עבור בית הכנסת שלך, עם חישוב זמנים אוטומטי.
+            </p>
+          </div>
           <div className="flex gap-2 mt-2">
             <Button variant="outline" size="sm" onClick={async () => {
               if(!confirm('האם אתה בטוח שברצונך למחוק את כל כללי החג/זמנים הנוכחיים ולחזור לזמני ברירת המחדל של שבת רגילה?')) return;
@@ -854,20 +984,37 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
           <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform" />
         </CollapsibleTrigger>
         <CollapsibleContent className="p-3 pt-0 space-y-3">
-          <div className="border-t border-border pt-3 mt-1">
+          {/* Prominent On/Off Switch for "זמני היום" on poster */}
+          <div className="flex items-center justify-between bg-background p-2.5 rounded-lg border border-border shadow-xs mt-2">
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-foreground">הצג "זמני היום" במודעה</span>
+              <span className="text-[11px] text-muted-foreground">הדלקת נרות, שקיעה, צאת שבת (כבוי כברירת מחדל)</span>
+            </div>
+            <Switch
+              checked={showZmanimOnPoster}
+              onCheckedChange={(val) => setShowZmanimOnPoster(val)}
+            />
+          </div>
+
+          <div className="border-t border-border pt-2 mt-1">
             {zmanimLoading ? (
               <div className="flex items-center gap-2 text-muted-foreground p-2 bg-muted rounded-lg">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="text-sm">טוען זמני היום...</span>
               </div>
             ) : (
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+              <div className={`border rounded-lg p-3 transition-colors ${showZmanimOnPoster ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-dashed border-border'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-bold text-sm text-primary flex items-center gap-1.5">
                     <Clock className="w-4 h-4" /> זמני היום
                     <span className="text-[10px] font-normal bg-primary/10 text-primary px-1.5 py-0.5 rounded mr-1">
                       לפי לוח עתים לבינה
                     </span>
+                    {!showZmanimOnPoster && (
+                      <span className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded font-normal">
+                        מוסתר במודעה
+                      </span>
+                    )}
                   </h3>
                   <button onClick={() => setShowZmanimSelector(!showZmanimSelector)} className="text-xs text-primary underline">
                     {showZmanimSelector ? 'סגור' : 'בחר זמנים להצגה'}

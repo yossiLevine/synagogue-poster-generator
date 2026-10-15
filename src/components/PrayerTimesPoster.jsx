@@ -53,7 +53,7 @@ export default function PrayerTimesPoster({ data, themeId = 'classic', showQR = 
     showHebrewDate, hebrewDateA, hebrewDateB, gregorianDateA, gregorianDateB, 
     labelDayA, labelDayB, isYomTov, isRoshChodesh, showRoshChodesh, specialShabbat,
     isHolidayMode, holidayName, combineWithShabbat, showEruvTavshilin, eruvTavshilinText,
-    showYizkorBadge, yizkorBadgeText
+    showYizkorBadge, yizkorBadgeText, showZmanimOnPoster
   } = data;
   const [config, setConfig] = useState(() => {
     const base = getConfig();
@@ -106,17 +106,28 @@ export default function PrayerTimesPoster({ data, themeId = 'classic', showQR = 
     borderStyle: '',
   };
 
+  const prayerCount = prayerRows?.length || 0;
+  const weekdayCount = weekdayRows?.filter(r => r.time)?.length || 0;
+  const annCount = activeAnnouncements.length || (announcements ? 1 : 0);
+  const totalItems = prayerCount + (weekdayCount > 0 ? weekdayCount + 1 : 0) + (annCount > 0 ? annCount + 1 : 0);
+
+  const isCompact = totalItems > 10;
+  const isVeryCompact = totalItems > 14;
+  const rowPad = isVeryCompact ? 'py-1 px-3 min-h-[34px]' : isCompact ? 'py-1.5 px-3.5 min-h-[38px]' : 'py-2 px-4 min-h-[42px]';
+  const labelFont = isVeryCompact ? 'text-base font-semibold' : isCompact ? 'text-lg font-semibold' : 'text-lg md:text-xl font-bold';
+  const timeFont = isVeryCompact ? 'text-lg md:text-xl font-bold' : isCompact ? 'text-xl md:text-2xl font-bold' : 'text-xl md:text-2xl font-extrabold';
+
   return (
     <PosterFrame themeId={themeId} bgImage={bgImage} bgOpacity={bgOpacity} brightness={brightness} frameId={frameId}>
-      <div className="text-center space-y-3" dir="rtl">
-        <SynagogueEmblem size="medium" themeId={themeId} />
+      <div className={`text-center ${isVeryCompact ? 'space-y-1.5' : isCompact ? 'space-y-2' : 'space-y-3'}`} dir="rtl">
+        <SynagogueEmblem size={isVeryCompact ? "small" : "medium"} themeId={themeId} />
 
         <div>
-          <h1 className={`${theme.titleFont} text-3xl md:text-4xl font-bold`} style={{ color: theme.titleColor }}>
+          <h1 className={`${theme.titleFont} ${isVeryCompact ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'} font-bold`} style={{ color: theme.titleColor }}>
             {isHolidayMode && holidayName ? `זמני תפילה - ${holidayName}` : 'זמני תפילה'} {bilingualMode && <span className="block text-xl font-normal mt-1">Prayer Times</span>}
           </h1>
           {parasha && (
-            <h2 className={`${theme.titleFont} text-xl md:text-2xl font-bold mt-1`} style={{ color: theme.titleColor }}>
+            <h2 className={`${theme.titleFont} ${isVeryCompact ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'} font-bold mt-1`} style={{ color: theme.titleColor }}>
               {combineWithShabbat && isHolidayMode ? `שבת קודש · ${parasha}` : parasha}
             </h2>
           )}
@@ -129,28 +140,28 @@ export default function PrayerTimesPoster({ data, themeId = 'classic', showQR = 
 
           {/* Smart Holiday Badges */}
           {isHolidayMode && showEruvTavshilin && eruvTavshilinText?.trim() && (
-            <div className="my-2 mx-auto max-w-md px-3 py-1.5 rounded-lg border text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"
+            <div className="my-1.5 mx-auto max-w-md px-3 py-1 rounded-lg border text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"
                  style={{ backgroundColor: `${theme.accentColor}15`, borderColor: `${theme.accentColor}40`, color: theme.titleColor }}>
               <span>🍲</span>
               <span>{eruvTavshilinText}</span>
             </div>
           )}
           {(isHolidayMode || specialShabbat?.includes('כיפור')) && showYizkorBadge && yizkorBadgeText?.trim() && (
-            <div className="my-2 mx-auto max-w-md px-3 py-1.5 rounded-lg border text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"
+            <div className="my-1.5 mx-auto max-w-md px-3 py-1 rounded-lg border text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"
                  style={{ backgroundColor: `${theme.accentColor}15`, borderColor: `${theme.accentColor}40`, color: theme.titleColor }}>
               <span>🕯️</span>
               <span>{yizkorBadgeText}</span>
             </div>
           )}
 
-          {haftarah && <p className="text-sm mt-1" style={{ color: theme.accentColor }}>הפטרה: {haftarah}</p>}
+          {haftarah && <p className="text-xs md:text-sm mt-0.5" style={{ color: theme.accentColor }}>הפטרה: {haftarah}</p>}
           {showHebrewDate && hebrewDateB && (
-            <p className="text-sm mt-1 font-frank" style={{ color: theme.accentColor }}>
+            <p className="text-xs md:text-sm mt-0.5 font-frank" style={{ color: theme.accentColor }}>
               <span>{hebrewDateB}</span>
             </p>
           )}
           {showHebrewDate && gregorianDateB && (
-            <p className="text-xs mt-0.5" style={{ color: theme.accentColor, opacity: 0.8 }}>
+            <p className="text-[11px] mt-0.5" style={{ color: theme.accentColor, opacity: 0.8 }}>
               <span>{formatGregorianDateSafe(gregorianDateB)}</span>
             </p>
           )}
@@ -169,14 +180,14 @@ export default function PrayerTimesPoster({ data, themeId = 'classic', showQR = 
             <p className="text-center text-sm mt-4 opacity-50 italic">יש להזין זמני תפילה בעורך כדי שיופיעו כאן</p>
           </div>
         ) : (
-          <div className="space-y-1.5 px-2 md:px-8">
+          <div className={`space-y-1.5 px-2 md:px-8 ${isVeryCompact ? 'space-y-1' : ''}`}>
             {prayerRows.map((row, i) => (
               row.isHeader ? (
                 // Holiday/section header — always show, no time needed
-                <div key={i} className={`flex items-center gap-2.5 ${i === 0 ? 'mt-3 mb-2' : 'mt-4 mb-2.5'} py-1`}>
+                <div key={i} className={`flex items-center gap-2.5 ${i === 0 ? 'mt-2 mb-1.5' : 'mt-3 mb-2'} py-0.5`}>
                   <div className="flex-1 h-px" style={{ background: theme.dividerColor, opacity: 0.5 }} />
                   <span 
-                    className={`${theme.titleFont || 'font-frank'} text-sm font-bold px-3.5 py-1 rounded-full leading-none inline-flex items-center justify-center`} 
+                    className={`${theme.titleFont || 'font-frank'} text-sm md:text-base font-bold px-4 py-1 rounded-full leading-none inline-flex items-center justify-center shadow-2xs`} 
                     style={{ color: theme.accentColor, backgroundColor: `${theme.accentColor}18` }}
                   >
                     {row.label}
@@ -185,20 +196,20 @@ export default function PrayerTimesPoster({ data, themeId = 'classic', showQR = 
                 </div>
               ) : row.isNote ? (
                 // Free text note row (no time)
-                <div key={i} className="text-center py-1.5 px-3 my-1">
-                  <span className="text-sm font-medium italic inline-block px-3 py-0.5 rounded-full" style={{ color: theme.accentColor, backgroundColor: `${theme.accentColor}12` }}>
+                <div key={i} className="text-center py-1 px-3 my-0.5">
+                  <span className="text-sm font-medium italic inline-block px-3.5 py-0.5 rounded-full" style={{ color: theme.accentColor, backgroundColor: `${theme.accentColor}12` }}>
                     {row.label}
                   </span>
                 </div>
               ) : !row.time ? (
                 // Label-only row (e.g. קידושא רבא)
-                <div key={i} className="text-center py-2 px-3 my-0.5 rounded-lg leading-tight" style={{ backgroundColor: `${theme.accentColor}10` }}>
+                <div key={i} className="text-center py-1.5 px-3 my-0.5 rounded-lg leading-tight" style={{ backgroundColor: `${theme.accentColor}10` }}>
                   <span className={`${theme.bodyFont || ''} text-base font-semibold leading-normal inline-block`} style={{ color: theme.titleColor }}>{row.label}</span>
                 </div>
               ) : (
                 <div
                   key={i}
-                  className="flex items-center justify-between py-2 px-3.5 rounded-lg min-h-[38px] md:min-h-[42px] transition-colors"
+                  className={`flex items-center justify-between ${rowPad} rounded-lg transition-colors`}
                   style={{ backgroundColor: i % 2 === 0 ? theme.rowEvenBg : 'transparent' }}
                 >
                   <span 
@@ -211,7 +222,7 @@ export default function PrayerTimesPoster({ data, themeId = 'classic', showQR = 
                         onUpdateData({ prayerRows: updated });
                       }
                     }}
-                    className={`${theme.bodyFont || ''} text-lg md:text-xl font-semibold leading-tight inline-flex flex-col justify-center text-right outline-none ${onUpdateData ? 'hover:ring-1 hover:ring-primary/40 rounded px-1 cursor-text transition-all' : ''}`} 
+                    className={`${theme.bodyFont || ''} ${labelFont} leading-tight inline-flex flex-col justify-center text-right outline-none ${onUpdateData ? 'hover:ring-1 hover:ring-primary/40 rounded px-1 cursor-text transition-all' : ''}`} 
                     style={{ color: theme.titleColor }}
                     title={onUpdateData ? "✏️ לחץ לעריכה ישירה" : undefined}
                   >
@@ -220,24 +231,25 @@ export default function PrayerTimesPoster({ data, themeId = 'classic', showQR = 
                       <span className="block text-xs font-normal opacity-70 mt-0.5 leading-tight">{BILINGUAL_LABELS[row.label]}</span>
                     )}
                   </span>
-                  <span className="flex items-center gap-2.5 shrink-0 leading-none">
-                    <span className="text-sm select-none opacity-60 inline-flex items-center self-center leading-none tracking-widest" style={{ color: theme.accentColor }}>{'·'.repeat(6)}</span>
-                    <span 
-                      contentEditable={!!onUpdateData}
-                      suppressContentEditableWarning
-                      onBlur={(e) => {
-                        const val = e.currentTarget.innerText.trim();
-                        if (onUpdateData && val !== row.time) {
-                          const updated = (prayerRows || []).map((r, idx) => idx === i ? { ...r, time: val } : r);
-                          onUpdateData({ prayerRows: updated });
-                        }
-                      }}
-                      className={`${theme.timeFont || 'font-frank'} text-xl md:text-2xl font-bold tabular-nums leading-none inline-flex items-center self-center outline-none ${onUpdateData ? 'hover:ring-1 hover:ring-primary/40 rounded px-1.5 cursor-text transition-all' : ''}`} 
-                      style={{ color: theme.titleColor }}
-                      title={onUpdateData ? "✏️ לחץ לעריכה ישירה של השעה" : undefined}
-                    >
-                      {row.time}
-                    </span>
+                  
+                  {/* Dynamic leader dots spanning space proportionally */}
+                  <div className="flex-1 mx-3 border-b border-dotted self-center opacity-40 min-w-4" style={{ borderColor: theme.accentColor }} />
+                  
+                  <span 
+                    contentEditable={!!onUpdateData}
+                    suppressContentEditableWarning
+                    onBlur={(e) => {
+                      const val = e.currentTarget.innerText.trim();
+                      if (onUpdateData && val !== row.time) {
+                        const updated = (prayerRows || []).map((r, idx) => idx === i ? { ...r, time: val } : r);
+                        onUpdateData({ prayerRows: updated });
+                      }
+                    }}
+                    className={`${theme.timeFont || 'font-frank'} ${timeFont} tabular-nums leading-none inline-flex items-center self-center outline-none shrink-0 ${onUpdateData ? 'hover:ring-1 hover:ring-primary/40 rounded px-1.5 cursor-text transition-all' : ''}`} 
+                    style={{ color: theme.titleColor }}
+                    title={onUpdateData ? "✏️ לחץ לעריכה ישירה של השעה" : undefined}
+                  >
+                    {row.time}
                   </span>
                 </div>
               )
@@ -266,7 +278,7 @@ export default function PrayerTimesPoster({ data, themeId = 'classic', showQR = 
           </>
         )}
 
-        {zmanimDisplay?.length > 0 && (
+        {(showZmanimOnPoster && zmanimDisplay?.length > 0) && (
           <>
             <Divider theme={theme} />
             <div>

@@ -101,6 +101,31 @@ export default function WhatsAppQuickShare({ liveData, onShareStat }) {
     setBusy(false);
   };
 
+  const [copiedBadge, setCopiedBadge] = useState(false);
+
+  const handleCopyImage = async () => {
+    setBusy(true);
+    try {
+      const raw = await capturePoster();
+      const dataUrl = raw?.dataUrl || raw;
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        setCopiedBadge(true);
+        setTimeout(() => setCopiedBadge(false), 4000);
+      } else {
+        throw new Error('ClipboardItem not supported');
+      }
+    } catch (e) {
+      console.warn('Clipboard image write failed:', e);
+      alert('הדפדפן אינו תומך בהעתקת תמונות ללוח. השתמש בכפתור השיתוף.');
+    }
+    setBusy(false);
+  };
+
   return (
     <>
       {/* Trigger button */}
@@ -119,7 +144,7 @@ export default function WhatsAppQuickShare({ liveData, onShareStat }) {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
 
           {/* Panel */}
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-5">
+          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4 border border-border">
 
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -128,8 +153,8 @@ export default function WhatsAppQuickShare({ liveData, onShareStat }) {
                   <MessageCircle className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-gray-900 text-base">שיתוף מהיר לוואטסאפ</h2>
-                  <p className="text-xs text-gray-400">המודעה תישלח עם הטקסט המלווה</p>
+                  <h2 className="font-bold text-gray-900 dark:text-gray-100 text-base">שיתוף מהיר לוואטסאפ</h2>
+                  <p className="text-xs text-gray-400">המודעה תישלח כתמונה עם הטקסט המלווה</p>
                 </div>
               </div>
               <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -140,14 +165,14 @@ export default function WhatsAppQuickShare({ liveData, onShareStat }) {
             {/* Preset texts */}
             <div>
               <p className="text-xs font-semibold text-gray-500 mb-2 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" /> נוסחים מוכנים
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" /> נוסחים מוכנים
               </p>
               <div className="flex gap-2 flex-wrap">
                 {AUTO_TEXTS.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => selectPreset(idx)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedPreset === idx ? 'bg-[#25D366] border-[#25D366] text-white' : 'border-gray-200 text-gray-600 hover:border-green-300 hover:text-green-700'}`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedPreset === idx ? 'bg-[#25D366] border-[#25D366] text-white' : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-green-300'}`}
                   >
                     נוסח {idx + 1}
                   </button>
@@ -161,29 +186,41 @@ export default function WhatsAppQuickShare({ liveData, onShareStat }) {
               <textarea
                 value={text}
                 onChange={e => { setText(e.target.value); setSelectedPreset(null); }}
-                rows={5}
+                rows={4}
                 dir="rtl"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-green-400 resize-none leading-relaxed"
+                className="w-full border border-gray-200 dark:border-gray-700 dark:bg-slate-800 rounded-xl px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:border-green-400 resize-none leading-relaxed"
                 placeholder="הוסף טקסט מלווה..."
               />
               <p className="text-xs text-gray-400 mt-1">{text.length} תווים · ניתן לשנות או למחוק</p>
             </div>
 
+            {/* Copy image button for WhatsApp Web */}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleCopyImage}
+              disabled={busy}
+              className="w-full text-xs font-semibold gap-1.5 py-2 border-green-500/30 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30"
+            >
+              {copiedBadge ? '✓ התמונה הועתקה ללוח! כעת הדבק ב-Ctrl+V בווטסאפ' : '📋 העתק תמונה ללוח (להדבקה ישירה ב-WhatsApp Web)'}
+            </Button>
+
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setOpen(false)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 transition-colors"
               >
-                ביטול
+                סגור
               </button>
               <button
                 onClick={handleShare}
                 disabled={busy}
-                className="flex-1 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+                className="flex-1 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60 shadow-sm"
               >
                 {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {busy ? 'שולח...' : 'שלח לוואטסאפ'}
+                {busy ? 'מעבד...' : 'שלח לוואטסאפ'}
               </button>
             </div>
           </div>
