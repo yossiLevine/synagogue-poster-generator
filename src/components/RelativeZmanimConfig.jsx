@@ -143,7 +143,7 @@ export function calcPrayerRowsFromRules(rules, timesA, shabbatInfo, timesB = nul
     .filter(Boolean);
 }
 
-export default function RelativeZmanimConfig({ onApply, isYomTov = false }) {
+export default function RelativeZmanimConfig({ onApply, isYomTov = false, embedded = false, defaultOpen = true }) {
   const [rules, setRules] = useState(() => {
     const saved = loadRules();
     return saved.length > 0 ? saved : (isYomTov ? DEFAULT_YOM_TOV_RULES : DEFAULT_SHABBAT_RULES);
@@ -164,9 +164,10 @@ export default function RelativeZmanimConfig({ onApply, isYomTov = false }) {
       setRules(isYomTov ? DEFAULT_YOM_TOV_RULES : DEFAULT_SHABBAT_RULES);
     }
   }, [isYomTov]);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(embedded ? true : defaultOpen);
   const [profileName, setProfileName] = useState('');
   const [profiles, setProfiles] = useState(() => loadProfiles());
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Auto-tag: zmanim that belong to "day A" (Friday/Erev YomTov)
   const DAY_A_ZMANIM = new Set(['alotHaShachar', 'sunrise', 'sofZmanShma', 'chatzot', 'minchaGedola', 'plagHaMincha', 'candleLighting', 'sunset', 'tzeitFriday7083deg', 'tzeitFriday85deg']);
@@ -239,13 +240,15 @@ export default function RelativeZmanimConfig({ onApply, isYomTov = false }) {
   };
 
   const handleSave = async () => {
-   try {
-     await saveRules(rules);
-     onApply(rules);
-     setOpen(false);
-   } catch (e) {
-     alert(e.message);
-   }
+    try {
+      await saveRules(rules);
+      if (onApply) onApply(rules);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      if (!embedded) setOpen(false);
+    } catch (e) {
+      alert(e.message);
+    }
   };
 
   const handleSaveProfile = () => {
@@ -257,180 +260,218 @@ export default function RelativeZmanimConfig({ onApply, isYomTov = false }) {
   };
 
   const handleLoadProfile = async (name) => {
-   const p = loadProfiles()[name];
-   if (p?.rules) { 
-     setRules(p.rules);
-     setOpen(true);
-     try {
-       await saveRules(p.rules);
-       onApply(p.rules);
-     } catch (e) {
-       alert(e.message);
-     }
-   }
+    const p = loadProfiles()[name];
+    if (p?.rules) { 
+      setRules(p.rules);
+      setOpen(true);
+      try {
+        await saveRules(p.rules);
+        if (onApply) onApply(p.rules);
+      } catch (e) {
+        alert(e.message);
+      }
+    }
   };
 
   const handleDeleteProfile = (name) => {
-   if (!window.confirm(`למחוק את פרופיל "${name}"?`)) return;
-   deleteProfile(name);
-   setProfiles(loadProfiles());
+    if (!window.confirm(`למחוק את פרופיל "${name}"?`)) return;
+    deleteProfile(name);
+    setProfiles(loadProfiles());
   };
 
+  const contentMarkup = (
+    <div className="space-y-4" dir="rtl">
+      <div className="flex items-center justify-between flex-wrap gap-2 pb-1 border-b border-border">
+        <p className="text-xs text-muted-foreground">הגדר שעות קבועות או דקות לפני/אחרי זמן אסטרונומי. הזמנים יחושבו אוטומטית בכל שבוע.</p>
+        <button
+          onClick={loadDefaults}
+          className="text-xs text-primary font-medium underline hover:no-underline whitespace-nowrap"
+        >
+          {isYomTov ? '✨ אפס לברירת מחדל יו"ט' : '✨ אפס לברירת מחדל שבת'}
+        </button>
+      </div>
+
+      {/* Profile loader */}
+      {Object.keys(profiles).length > 0 && (
+        <div className="space-y-1.5 p-2.5 bg-muted/30 rounded-xl border border-border">
+          <p className="text-xs font-semibold text-foreground">פרופילים שמורים:</p>
+          <div className="flex flex-wrap gap-1.5">
+            {Object.keys(profiles).map(name => (
+              <div key={name} className="flex items-center gap-1.5 bg-background rounded-lg px-2.5 py-1 border border-border text-xs">
+                <button onClick={() => handleLoadProfile(name)} className="text-primary hover:underline flex items-center gap-1 font-medium">
+                  <FolderOpen className="w-3.5 h-3.5" /> {name}
+                </button>
+                <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteProfile(name)}>
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Rules list */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="rules-list">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2.5">
+              {rules.map((rule, i) => (
+                <Draggable key={getRuleId(i)} draggableId={getRuleId(i)} index={i}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`border border-border/80 rounded-xl p-3 space-y-2.5 bg-card shadow-xs transition-shadow ${snapshot.isDragging ? 'shadow-lg opacity-90 ring-2 ring-primary/30' : ''}`}
+                    >
+                      {/* Top row: Label + drag handle + delete */}
+                      <div className="flex items-center gap-2">
+                        <div {...provided.dragHandleProps} className="cursor-grab text-muted-foreground hover:text-foreground flex-shrink-0 p-1 rounded-md hover:bg-muted" title="גרור לשינוי סדר">
+                          <GripVertical className="w-4 h-4" />
+                        </div>
+                        <Input
+                          value={rule.label}
+                          onChange={e => updateRule(i, 'label', e.target.value)}
+                          placeholder="שם תפילה (למשל: מנחה ערב שבת)"
+                          className="flex-1 text-sm font-bold bg-background text-right"
+                          dir="rtl"
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => removeRule(i)} className="text-destructive hover:bg-destructive/10 h-8 w-8 flex-shrink-0" title="מחק חוק">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      {/* Bottom row: Base zman, offset, day tag */}
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1 items-center">
+                        <div className="sm:col-span-6">
+                          <Select value={rule.baseZman} onValueChange={v => updateRule(i, 'baseZman', v)}>
+                            <SelectTrigger className="w-full text-xs sm:text-sm bg-background">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {BASE_ZMANIM_OPTIONS.map(z => <SelectItem key={z.key} value={z.key}>{z.label}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="sm:col-span-4 flex items-center justify-end">
+                          {rule.baseZman === 'fixed' ? (
+                            <div className="flex items-center gap-1.5 w-full justify-end">
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">שעה:</span>
+                              <Input
+                                type="time"
+                                value={rule.fixedTime || ''}
+                                onChange={e => updateRule(i, 'fixedTime', e.target.value)}
+                                className="w-28 text-sm text-center font-frank bg-background"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 w-full justify-end">
+                              <button
+                                type="button"
+                                onClick={() => toggleDirection(i)}
+                                className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-colors whitespace-nowrap ${
+                                  Math.abs(parseInt(rule.offsetMinutes || 0, 10)) === 0
+                                    ? 'bg-blue-100 border-blue-300 text-blue-700'
+                                    : rule.direction === 'before'
+                                      ? 'bg-amber-100 border-amber-300 text-amber-800'
+                                      : 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                                }`}
+                                title="שנה כיוון (לפני / אחרי / בדיוק בזמן)"
+                              >
+                                {Math.abs(parseInt(rule.offsetMinutes || 0, 10)) === 0 ? (
+                                  'בזמן'
+                                ) : rule.direction === 'before' ? (
+                                  <span className="flex items-center gap-0.5"><Minus className="w-3 h-3" /> לפני</span>
+                                ) : (
+                                  <span className="flex items-center gap-0.5"><Plus className="w-3 h-3" /> אחרי</span>
+                                )}
+                              </button>
+                              <Input
+                                type="number"
+                                value={Math.abs(parseInt(rule.offsetMinutes || 0, 10))}
+                                onChange={e => updateMinutes(i, e.target.value)}
+                                className="w-16 text-sm text-center bg-background"
+                                min="0"
+                                max="180"
+                              />
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">דק'</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="sm:col-span-2 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...rules];
+                              updated[i] = { ...updated[i], dayTag: updated[i].dayTag === 'A' ? 'B' : 'A', _manualDayTag: true };
+                              setRules(updated);
+                            }}
+                            className={`w-full py-1.5 px-2 rounded-lg border text-xs font-bold transition-colors text-center ${
+                              (rule.dayTag || 'A') === 'A' 
+                                ? 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100' 
+                                : 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100'
+                            }`}
+                            title="יום א׳ (שישי) או יום ב׳ (שבת)"
+                          >
+                            {(rule.dayTag || 'A') === 'A' ? 'שישי (א׳)' : 'שבת (ב׳)'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+
+      <div className="flex gap-2 flex-wrap">
+        <Button variant="outline" size="sm" onClick={addRule} className="gap-1.5 flex-1">
+          <Plus className="w-4 h-4 ml-1" /> הוסף חוק חדש
+        </Button>
+      </div>
+
+      {/* Save profile */}
+      <div className="flex gap-2 pt-2 border-t border-border">
+        <Input value={profileName} onChange={e => setProfileName(e.target.value)} placeholder="שם פרופיל חוקים אישי..." className="flex-1 text-right text-sm" dir="rtl" />
+        <Button variant="outline" size="sm" onClick={handleSaveProfile} className="gap-1.5 flex-shrink-0">
+          <Save className="w-3.5 h-3.5" /> שמור כפרופיל
+        </Button>
+      </div>
+
+      <Button 
+        size="sm" 
+        onClick={handleSave} 
+        className={`w-full font-bold text-sm py-2.5 transition-all shadow-sm ${saveSuccess ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-primary hover:bg-primary/95 text-primary-foreground'}`}
+      >
+        {saveSuccess ? '✓ החוקים נשמרו בהצלחה לבית הכנסת!' : '💾 שמור חוקים אלו לבית הכנסת וחשב מחדש'}
+      </Button>
+    </div>
+  );
+
+  if (embedded) {
+    return contentMarkup;
+  }
+
   return (
-    <div dir="rtl" className="border border-border rounded-xl overflow-hidden">
+    <div dir="rtl" className="border border-border rounded-xl overflow-hidden bg-card">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-4 py-3 bg-muted/40 hover:bg-muted/60 transition-colors"
       >
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Zap className="w-4 h-4 text-primary" />
-          חישוב אוטומטי לפי זמני היום
+          <span>חישוב אוטומטי לפי זמני היום</span>
         </div>
         <span className="text-xs text-muted-foreground">{rules.length} חוקים</span>
       </button>
 
       {open && (
-        <div className="p-4 space-y-4 border-t border-border">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">הגדר דקות לפני/אחרי זמן יומי. המערכת תחשב כל שבוע אוטומטית.</p>
-            <button
-              onClick={loadDefaults}
-              className="text-xs text-primary underline hover:no-underline whitespace-nowrap flex-shrink-0 mr-2"
-            >
-              {isYomTov ? '✨ טען ברירת מחדל יו"ט' : '✨ טען ברירת מחדל שבת'}
-            </button>
-          </div>
-
-          {/* Profile loader */}
-          {Object.keys(profiles).length > 0 && (
-            <div className="space-y-1">
-              <p className="text-xs font-semibold">פרופיל שמור:</p>
-              {Object.keys(profiles).map(name => (
-                <div key={name} className="flex items-center justify-between bg-muted/40 rounded px-2 py-1">
-                  <button onClick={() => handleLoadProfile(name)} className="text-sm text-primary hover:underline flex items-center gap-1">
-                    <FolderOpen className="w-3.5 h-3.5" /> {name}
-                  </button>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteProfile(name)}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Rules */}
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="rules-list">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                  {rules.map((rule, i) => (
-                    <Draggable key={getRuleId(i)} draggableId={getRuleId(i)} index={i}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className={`border border-border rounded-lg p-2 space-y-2 bg-card ${snapshot.isDragging ? 'shadow-lg opacity-90' : ''}`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div {...provided.dragHandleProps} className="cursor-grab text-muted-foreground hover:text-foreground flex-shrink-0 p-2 -mr-2 active:bg-muted/50 rounded-lg">
-                              <GripVertical className="w-4 h-4" />
-                            </div>
-                            <Input
-                              value={rule.label}
-                              onChange={e => updateRule(i, 'label', e.target.value)}
-                              placeholder="שם תפילה"
-                              className="flex-1 text-sm text-right"
-                              dir="rtl"
-                            />
-                            <Button variant="ghost" size="icon" onClick={() => removeRule(i)} className="text-destructive h-8 w-8 flex-shrink-0">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <Select value={rule.baseZman} onValueChange={v => updateRule(i, 'baseZman', v)}>
-                              <SelectTrigger className="flex-1 min-w-[120px] text-sm"><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                {BASE_ZMANIM_OPTIONS.map(z => <SelectItem key={z.key} value={z.key}>{z.label}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-
-                            {rule.baseZman === 'fixed' ? (
-                              <Input
-                                type="time"
-                                value={rule.fixedTime || ''}
-                                onChange={e => updateRule(i, 'fixedTime', e.target.value)}
-                                className="w-28 text-sm text-center font-frank"
-                              />
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => toggleDirection(i)}
-                                  className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border text-xs font-bold transition-colors ${
-                                    Math.abs(parseInt(rule.offsetMinutes || 0, 10)) === 0
-                                      ? 'bg-blue-100 border-blue-300 text-blue-700'
-                                      : rule.direction === 'before'
-                                        ? 'bg-orange-100 border-orange-300 text-orange-700'
-                                        : 'bg-green-100 border-green-300 text-green-700'
-                                  }`}
-                                  title="שנה כיוון (לפני / אחרי / בדיוק בזמן)"
-                                >
-                                  {Math.abs(parseInt(rule.offsetMinutes || 0, 10)) === 0 ? (
-                                    'בזמן'
-                                  ) : rule.direction === 'before' ? (
-                                    <><Minus className="w-3 h-3" /> לפני</>
-                                  ) : (
-                                    <><Plus className="w-3 h-3" /> אחרי</>
-                                  )}
-                                </button>
-                                <div className="flex items-center gap-1">
-                                  <Input
-                                    type="number"
-                                    value={Math.abs(parseInt(rule.offsetMinutes || 0, 10))}
-                                    onChange={e => updateMinutes(i, e.target.value)}
-                                    className="w-14 text-sm text-center"
-                                    min="0"
-                                    max="180"
-                                  />
-                                  <span className="text-xs text-muted-foreground whitespace-nowrap">דק'</span>
-                                </div>
-                              </>
-                            )}
-
-                            <button
-                              onClick={() => {
-                                const updated = [...rules];
-                                updated[i] = { ...updated[i], dayTag: updated[i].dayTag === 'A' ? 'B' : 'A', _manualDayTag: true };
-                                setRules(updated);
-                              }}
-                              className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition-colors flex-shrink-0 ${(rule.dayTag || 'A') === 'A' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-purple-100 border-purple-300 text-purple-700'}`}
-                              title="יום א׳ (שישי/ערב חג) או יום ב׳ (שבת/חג)"
-                            >
-                              יום {(rule.dayTag || 'A') === 'A' ? 'א׳' : 'ב׳'}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-
-          <Button variant="outline" size="sm" onClick={addRule} className="gap-1">
-            <Plus className="w-3.5 h-3.5" /> הוסף חוק
-          </Button>
-
-          {/* Save profile */}
-          <div className="flex gap-2 pt-1 border-t border-border">
-            <Input value={profileName} onChange={e => setProfileName(e.target.value)} placeholder="שם הפרופיל..." className="flex-1 text-right text-sm" dir="rtl" />
-            <Button variant="outline" size="sm" onClick={handleSaveProfile} className="gap-1 flex-shrink-0">
-              <Save className="w-3.5 h-3.5" /> שמור פרופיל
-            </Button>
-          </div>
-
-          <Button size="sm" onClick={handleSave} className="w-full">שמור וחשב תפילות</Button>
+        <div className="p-4 border-t border-border">
+          {contentMarkup}
         </div>
       )}
     </div>

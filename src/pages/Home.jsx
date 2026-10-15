@@ -883,7 +883,7 @@ export default function Home({ synagogueId = null }) {
 
       {/* Synagogue Settings Dialog Modal */}
       <Dialog open={settingsModalOpen} onOpenChange={setSettingsModalOpen}>
-        <DialogContent className="max-w-2xl p-6 max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl p-4 sm:p-6 max-h-[92vh] overflow-y-auto rounded-2xl" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Settings className="w-5 h-5 text-primary" />
@@ -893,7 +893,7 @@ export default function Home({ synagogueId = null }) {
           <div className="pt-2">
             <SynagogueSettings 
               synagogueId={synagogueId} 
-              defaultOpen={true} 
+              embedded={true} 
               onSuccess={() => setSettingsModalOpen(false)} 
             />
           </div>
