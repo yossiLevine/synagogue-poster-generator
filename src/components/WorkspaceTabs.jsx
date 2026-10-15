@@ -29,9 +29,9 @@ export default function WorkspaceTabs({
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="bg-card/70 backdrop-blur-md border-b border-border/80 px-3 sm:px-4 py-1.5 flex items-center justify-between gap-2 overflow-x-auto shadow-2xs">
+    <div className="bg-card/70 backdrop-blur-md border-b border-border/80 px-3 sm:px-4 py-1.5 flex items-center justify-between gap-2 overflow-x-auto shadow-2xs no-scrollbar">
       {/* Scrollable list of active tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 max-w-full">
+      <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 max-w-full no-scrollbar">
         <span className="text-[11px] font-bold text-muted-foreground hidden sm:inline-block pl-1 shrink-0">
           מרחב עבודה:
         </span>

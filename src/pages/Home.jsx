@@ -528,7 +528,7 @@ export default function Home({ synagogueId = null }) {
         {/* RIGHT COLUMN: Modern Floating Sidebar Dock */}
         <aside className={`w-full lg:w-60 border-l border-border/80 bg-card/60 backdrop-blur-xl flex flex-col flex-shrink-0 z-10 lg:h-[calc(100vh-65px)] overflow-y-auto ${!editorVisible ? 'hidden lg:flex' : 'flex'}`}>
           <div className="p-3 flex-1 flex flex-col">
-            <nav className="flex gap-1.5 overflow-x-auto lg:flex-col p-1.5 bg-muted/40 rounded-2xl border border-border/60">
+            <nav className="flex gap-1.5 overflow-x-auto lg:flex-col p-1.5 bg-muted/40 rounded-2xl border border-border/60 no-scrollbar">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeMenu === item.id;
@@ -883,7 +883,7 @@ export default function Home({ synagogueId = null }) {
 
       {/* Print-Ready High Quality PDF Export Dialog */}
       <Dialog open={pdfModalOpen} onOpenChange={setPdfModalOpen}>
-        <DialogContent className="max-w-md p-6" dir="rtl">
+        <DialogContent className="w-[95vw] sm:max-w-md p-4 sm:p-6 rounded-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Printer className="w-5 h-5 text-primary" />

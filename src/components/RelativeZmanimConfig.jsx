@@ -353,9 +353,9 @@ export default function RelativeZmanimConfig({ onApply, isYomTov = false, embedd
                           </Select>
                         </div>
 
-                        <div className="sm:col-span-4 flex items-center justify-end">
+                        <div className="sm:col-span-4 flex items-center justify-between sm:justify-end">
                           {rule.baseZman === 'fixed' ? (
-                            <div className="flex items-center gap-1.5 w-full justify-end">
+                            <div className="flex items-center gap-1.5 w-full justify-between sm:justify-end">
                               <span className="text-xs text-muted-foreground whitespace-nowrap">שעה:</span>
                               <Input
                                 type="time"
@@ -365,7 +365,7 @@ export default function RelativeZmanimConfig({ onApply, isYomTov = false, embedd
                               />
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1.5 w-full justify-end">
+                            <div className="flex items-center gap-1.5 w-full justify-between sm:justify-end">
                               <button
                                 type="button"
                                 onClick={() => toggleDirection(i)}

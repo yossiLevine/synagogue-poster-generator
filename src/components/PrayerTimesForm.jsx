@@ -873,10 +873,10 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
                               </div>
 
                               <div className="flex items-center gap-0.5 flex-shrink-0">
-                                <Button variant="ghost" size="icon" onClick={() => saveAsPermanentRule(row)} className="text-primary hover:text-primary/80 h-8 w-7" title="שמור כשורה קבועה לשבתות הבאות">
+                                <Button variant="ghost" size="icon" onClick={() => saveAsPermanentRule(row)} className="hidden sm:inline-flex text-primary hover:text-primary/80 h-8 w-7" title="שמור כשורה קבועה לשבתות הבאות">
                                   <Save className="w-3.5 h-3.5" />
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={() => duplicateRow(i)} className="text-muted-foreground hover:text-foreground h-8 w-7" title="שכפל שורה">
+                                <Button variant="ghost" size="icon" onClick={() => duplicateRow(i)} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground h-8 w-7" title="שכפל שורה">
                                   <Copy className="w-3.5 h-3.5" />
                                 </Button>
                                 <Button variant="ghost" size="icon" onClick={() => removeRow(i)} className="text-destructive hover:bg-destructive/10 h-8 w-7" title="מחק שורה">
