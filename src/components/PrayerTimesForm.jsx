@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Loader2, Clock, Save, Copy, FolderOpen, GripVertical, AlertCircle, X, ChevronDown, RotateCcw, Camera, Check, Settings, Undo2, Redo2 } from 'lucide-react';
+import { Plus, Trash2, Loader2, Clock, Save, Copy, FolderOpen, GripVertical, AlertCircle, X, ChevronDown, RotateCcw, Camera, Check, Settings, Undo2, Redo2, Sliders } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { fetchZmanim, fetchShabbatInfo, buildZmanimForDisplay, fetchZmanimTwoDays, getNextFriday, addDays, resolveZmanIso, formatTime, ZMANIM_META } from '@/lib/zmanimApi';
@@ -973,14 +973,27 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
                 ))}
               </div>
             )}
+            <div className="pt-2 text-center">
+              <button 
+                type="button" 
+                onClick={() => {
+                  const el = document.getElementById('rules-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                className="text-xs text-primary font-medium hover:underline inline-flex items-center gap-1"
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>רוצה לשנות את החוקים הדינמיים שמחשבים שעות בכל שבוע? עבור לשלב 3 למטה</span>
+              </button>
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
 
-      {/* ── STEP 3: Auto Zmanim ── */}
-      <Collapsible className="bg-muted/20 rounded-xl border border-border">
+      {/* ── STEP 3: Auto Zmanim & Dynamic Rules ── */}
+      <Collapsible defaultOpen className="bg-muted/20 rounded-xl border border-border">
         <CollapsibleTrigger className="w-full p-3 flex items-center justify-between hover:bg-muted/30 transition-colors">
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">שלב 3 — הגדרות וכללי חישוב אוטומטי</p>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">שלב 3 — חוקי חישוב זמנים דינמיים וזמני היום ⚙️</p>
           <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform" />
         </CollapsibleTrigger>
         <CollapsibleContent className="p-3 pt-0 space-y-3">
@@ -1066,7 +1079,16 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
               />
             </div>
           )}
-          <div id="rules-section">
+          <div id="rules-section" className="border-t border-border pt-3 mt-2">
+            <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl mb-3">
+              <h4 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-1">
+                <Sliders className="w-4 h-4 text-primary" />
+                <span>חוקי חישוב זמני תפילה של בית הכנסת (מתעדכנים בכל שבוע)</span>
+              </h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                חוקים אלו קובעים כיצד המערכת מחשבת אוטומטית בכל שבוע את שעות התפילה לפי לוח עתים לבינה (למשל: "20 דקות לפני הדלקת נרות", "08:30 שעה קבועה", "בזמן צאת שבת").
+              </p>
+            </div>
             <RelativeZmanimConfig onApply={(rules) => { handleApplyRules(rules); recheckRules(); }} isYomTov={isYomTov} />
           </div>
           <HalachaCalculator

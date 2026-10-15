@@ -883,11 +883,11 @@ export default function Home({ synagogueId = null }) {
 
       {/* Synagogue Settings Dialog Modal */}
       <Dialog open={settingsModalOpen} onOpenChange={setSettingsModalOpen}>
-        <DialogContent className="max-w-md p-6 max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="max-w-2xl p-6 max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Settings className="w-5 h-5 text-primary" />
-              הגדרות בית הכנסת
+              פרופיל והגדרות בית הכנסת
             </DialogTitle>
           </DialogHeader>
           <div className="pt-2">
