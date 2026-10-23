@@ -173,8 +173,8 @@ export default function SynagogueSettings({ onChange, synagogueId, onSuccess, de
           <div>
             <RelativeZmanimConfig 
               embedded={true}
-              onApply={(rules) => {
-                if (onChange) onChange({ rules });
+              onApply={(rules, newPrayerRows) => {
+                if (onChange) onChange({ rules, prayerRows: newPrayerRows });
                 setSavedBadge(true);
                 setTimeout(() => setSavedBadge(false), 2000);
               }} 

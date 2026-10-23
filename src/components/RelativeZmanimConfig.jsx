@@ -62,8 +62,8 @@ export const BASE_ZMANIM_OPTIONS = [
 
 const RULES_LS_KEY = 'synagogue_relative_rules';
 
-import { getSynagogueId, loadRulesFromDB, saveRulesToDB } from '@/lib/synagogueDB';
-import { resolveZmanIso, applyOffset } from '@/lib/zmanimApi';
+import { getSynagogueId, loadRulesFromDB, saveRulesToDB, saveDraftToDB } from '@/lib/synagogueDB';
+import { resolveZmanIso, applyOffset, fetchZmanimTwoDays, fetchShabbatInfo, getNextFriday, addDays } from '@/lib/zmanimApi';
 
 function migrateRules(rules) {
   // Fix: tzeit7083deg/tzeit85deg with dayTag 'A' should use the Friday variants
@@ -143,6 +143,32 @@ export function calcPrayerRowsFromRules(rules, timesA, shabbatInfo, timesB = nul
     .filter(Boolean);
 }
 
+export async function calculateRowsForCurrentShabbat(rules) {
+  let friday = getNextFriday();
+  try {
+    const raw = localStorage.getItem('editor_draft');
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d.gregorianDateA) friday = d.gregorianDateA;
+    }
+  } catch {}
+
+  const shabbat = addDays(friday, 1);
+  const [{ zmanimA, zmanimB }, shabbatInfo] = await Promise.all([
+    fetchZmanimTwoDays(friday, shabbat),
+    fetchShabbatInfo(friday),
+  ]);
+
+  const rawRows = calcPrayerRowsFromRules(rules, zmanimA, shabbatInfo, zmanimB);
+  return rawRows.map((r, i) => ({
+    id: `rule-calc-${i}-${Date.now()}`,
+    label: r.label,
+    time: r.time,
+    dayTag: r.dayTag || 'A',
+    visible: true,
+  }));
+}
+
 export default function RelativeZmanimConfig({ onApply, isYomTov = false, embedded = false, defaultOpen = true }) {
   const [rules, setRules] = useState(() => {
     const saved = loadRules();
@@ -172,13 +198,37 @@ export default function RelativeZmanimConfig({ onApply, isYomTov = false, embedd
   // Auto-tag: zmanim that belong to "day A" (Friday/Erev YomTov)
   const DAY_A_ZMANIM = new Set(['alotHaShachar', 'sunrise', 'sofZmanShma', 'chatzot', 'minchaGedola', 'plagHaMincha', 'candleLighting', 'sunset', 'tzeitFriday7083deg', 'tzeitFriday85deg']);
 
+  const applyAndSaveRules = async (rulesToApply) => {
+    await saveRules(rulesToApply);
+    let newRows = [];
+    try {
+      newRows = await calculateRowsForCurrentShabbat(rulesToApply);
+      let draft = null;
+      try {
+        draft = JSON.parse(localStorage.getItem('editor_draft'));
+      } catch {}
+      if (draft) {
+        draft.prayerRows = newRows;
+        draft.lastModified = Date.now();
+        localStorage.setItem('editor_draft', JSON.stringify(draft));
+        saveDraftToDB(draft).catch(err => console.warn('DB draft save error:', err));
+      }
+      window.dispatchEvent(new CustomEvent('synagogue-rules-applied', {
+        detail: { rules: rulesToApply, prayerRows: newRows }
+      }));
+    } catch (err) {
+      console.warn('Failed to auto-recalc rows on rule save:', err);
+    }
+    if (onApply) onApply(rulesToApply, newRows);
+    return newRows;
+  };
+
   const loadDefaults = async () => {
     const defaults = isYomTov ? DEFAULT_YOM_TOV_RULES : DEFAULT_SHABBAT_RULES;
     ruleIdsRef.current = defaults.map((_, i) => `rule-id-${Date.now()}-${i}`);
     setRules(defaults);
     try {
-      await saveRules(defaults);
-      onApply(defaults);
+      await applyAndSaveRules(defaults);
     } catch (e) {
       alert(e.message);
     }
@@ -241,8 +291,7 @@ export default function RelativeZmanimConfig({ onApply, isYomTov = false, embedd
 
   const handleSave = async () => {
     try {
-      await saveRules(rules);
-      if (onApply) onApply(rules);
+      await applyAndSaveRules(rules);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
       if (!embedded) setOpen(false);
@@ -265,8 +314,7 @@ export default function RelativeZmanimConfig({ onApply, isYomTov = false, embedd
       setRules(p.rules);
       setOpen(true);
       try {
-        await saveRules(p.rules);
-        if (onApply) onApply(p.rules);
+        await applyAndSaveRules(p.rules);
       } catch (e) {
         alert(e.message);
       }

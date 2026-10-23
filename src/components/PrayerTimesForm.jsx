@@ -80,6 +80,20 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     }
   }, [initialData?.lastModified, initialData?.workspaceId]);
 
+  // Listen for synagogue prayer rules changes and update form inputs immediately
+  useEffect(() => {
+    const handleRulesApplied = (e) => {
+      if (e.detail?.prayerRows && Array.isArray(e.detail.prayerRows) && e.detail.prayerRows.length > 0) {
+        setPrayerRows(e.detail.prayerRows);
+        if (onChange) {
+          onChange({ prayerRows: e.detail.prayerRows });
+        }
+      }
+    };
+    window.addEventListener('synagogue-rules-applied', handleRulesApplied);
+    return () => window.removeEventListener('synagogue-rules-applied', handleRulesApplied);
+  }, [onChange]);
+
   useEffect(() => {
     if (dataToLoad && dataToLoad.type === 'prayer') {
       if (dataToLoad.showZmanimOnPoster !== undefined) setShowZmanimOnPoster(dataToLoad.showZmanimOnPoster);

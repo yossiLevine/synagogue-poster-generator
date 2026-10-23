@@ -176,6 +176,21 @@ export default function Home({ synagogueId = null }) {
     }
   }, [liveData, isInitializing, activeWorkspaceId]);
 
+  // Listen for synagogue prayer rules changes and update liveData immediately
+  useEffect(() => {
+    const handleRulesApplied = (e) => {
+      if (e.detail?.prayerRows && Array.isArray(e.detail.prayerRows)) {
+        setLiveData(prev => prev ? ({
+          ...prev,
+          prayerRows: e.detail.prayerRows,
+          lastModified: Date.now()
+        }) : prev);
+      }
+    };
+    window.addEventListener('synagogue-rules-applied', handleRulesApplied);
+    return () => window.removeEventListener('synagogue-rules-applied', handleRulesApplied);
+  }, []);
+
   // Workspace actions
   const handleSelectWorkspace = (id) => {
     if (id === activeWorkspaceId) return;
@@ -771,7 +786,19 @@ export default function Home({ synagogueId = null }) {
                         ניהול פרטי בית הכנסת, מיקום אופק עתים לבינה, וחוקי חישוב זמני התפילה האוטומטיים
                       </p>
                     </div>
-                    <SynagogueSettings synagogueId={synagogueId} embedded={true} />
+                    <SynagogueSettings 
+                      synagogueId={synagogueId} 
+                      embedded={true} 
+                      onChange={(updated) => {
+                        if (updated?.prayerRows) {
+                          setLiveData(prev => prev ? ({
+                            ...prev,
+                            prayerRows: updated.prayerRows,
+                            lastModified: Date.now()
+                          }) : prev);
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -913,6 +940,15 @@ export default function Home({ synagogueId = null }) {
             <SynagogueSettings 
               synagogueId={synagogueId} 
               embedded={true} 
+              onChange={(updated) => {
+                if (updated?.prayerRows) {
+                  setLiveData(prev => prev ? ({
+                    ...prev,
+                    prayerRows: updated.prayerRows,
+                    lastModified: Date.now()
+                  }) : prev);
+                }
+              }}
               onSuccess={() => setSettingsModalOpen(false)} 
             />
           </div>
