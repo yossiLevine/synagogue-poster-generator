@@ -90,7 +90,11 @@ export default function PublicPoster() {
       <p className="text-xs text-muted-foreground mb-4">מודעה שבועית — {poster?.synagogueName}</p>
       {poster?.data && (
         <div className="w-full max-w-lg">
-          <PrayerTimesPoster data={poster.data} themeId="classic" />
+          <PrayerTimesPoster 
+            data={poster.data} 
+            themeId={poster.data.themeId || 'classic'} 
+            frameId={poster.data.frameId || 'classic'} 
+          />
         </div>
       )}
       <p className="mt-6 text-xs text-muted-foreground text-center">

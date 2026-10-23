@@ -6,8 +6,21 @@ import { formatTime } from '@/lib/zmanimApi';
 function getOmerCount() {
   const now = new Date();
   const year = now.getFullYear();
-  // Pesach 15 Nisan Gregorian dates: 2024=Apr 23, 2025=Apr 13, 2026=Apr 2, 2027=Apr 22
-  const pesachDates = { 2024: new Date(2024, 3, 23), 2025: new Date(2025, 3, 13), 2026: new Date(2026, 3, 2), 2027: new Date(2027, 3, 22) };
+  // Pesach 15 Nisan Gregorian dates (accurate Jewish calendar table)
+  const pesachDates = { 
+    2024: new Date(2024, 3, 23), 
+    2025: new Date(2025, 3, 13), 
+    2026: new Date(2026, 3, 2), 
+    2027: new Date(2027, 3, 22),
+    2028: new Date(2028, 3, 11),
+    2029: new Date(2029, 2, 31),
+    2030: new Date(2030, 3, 18),
+    2031: new Date(2031, 3, 8),
+    2032: new Date(2032, 2, 27),
+    2033: new Date(2033, 3, 14),
+    2034: new Date(2034, 3, 4),
+    2035: new Date(2035, 3, 24),
+  };
   const pesach = pesachDates[year] || new Date(year, 3, 2);
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   // First day of count is 16 Nisan (1 day after 15 Nisan)

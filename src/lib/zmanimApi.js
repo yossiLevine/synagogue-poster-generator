@@ -135,9 +135,15 @@ export function getNextFriday() {
   const d = new Date(y, m - 1, day);
   const dow = d.getDay(); // 0=Sun, 5=Fri, 6=Sat
   let diff;
-  if (dow === 5) diff = 7; // already Friday — return NEXT Friday
-  else if (dow === 6) diff = 6;
-  else diff = 5 - dow;
+  if (dow === 5) {
+    // On Friday, target today's Friday (upcoming Shabbat)
+    diff = 0;
+  } else if (dow === 6) {
+    // On Saturday, roll over to next Friday (+6 days)
+    diff = 6;
+  } else {
+    diff = 5 - dow;
+  }
   d.setDate(d.getDate() + diff);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }

@@ -51,11 +51,20 @@ export default function DisplayMode() {
           fetchShabbatInfo(dateA),
         ]);
 
+        let calculatedRows = [];
+        try {
+          const { loadRulesAsync, calcPrayerRowsFromRules } = await import('@/components/RelativeZmanimConfig');
+          const rules = await loadRulesAsync();
+          calculatedRows = calcPrayerRowsFromRules(rules, zmanimData.zmanimA, zmanimData.zmanimB, shabbatData);
+        } catch (ruleErr) {
+          console.warn('Failed to calculate prayer rows from rules in DisplayMode:', ruleErr);
+        }
+
         setData({
           type: 'prayer',
           parasha: shabbatData?.parasha || '',
           haftarah: shabbatData?.haftarah || '',
-          prayerRows: [],
+          prayerRows: calculatedRows,
           announcements: '',
           zmanimDisplay: buildZmanimForDisplay(zmanimData.zmanimA, shabbatData, DEFAULT_ZMANIM),
           yahrtzeits: [],
