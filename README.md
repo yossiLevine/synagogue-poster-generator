@@ -1,39 +1,42 @@
-**Welcome to your Base44 project** 
+# 🕍 מחולל מודעות בית כנסת (Synagogue Poster Generator)
 
-**About**
+מערכת מתקדמת ליצירה, עיצוב והפצה של מודעות זמני תפילה, שבתות, חגים ואירועים לקהילות ובתי כנסת.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+---
 
-This project contains everything you need to run your app locally.
+## 📖 תיעוד ומדריך מלא של הפרויקט
+**מדריך מפורט הכולל את ארכיטקטורת הפרויקט, מיקומי האחסון, פרטי התחברות וסיסמאות, הוראות פריסה והסבר על מנועי החישוב נמצא בקובץ:**
+👉 **[PROJECT_MANUAL.md](./PROJECT_MANUAL.md)**
 
-**Edit the code in your local development environment**
+---
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+## 🚀 קישורים מהירים
 
-**Prerequisites:** 
+- **כתובת האתר באוויר (Production):** [https://synagogue-poster-gen-2026.web.app](https://synagogue-poster-gen-2026.web.app)
+- **מסך התחברות (גבאי / אדמין):** [https://synagogue-poster-gen-2026.web.app/login](https://synagogue-poster-gen-2026.web.app/login)
+- **מאגר קוד ב-GitHub:** [https://github.com/yossiLevine/synagogue-poster-generator](https://github.com/yossiLevine/synagogue-poster-generator)
+- **לוח ניהול ב-Firebase Console:** [Firebase Console](https://console.firebase.google.com/project/synagogue-poster-gen-2026/overview)
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+---
 
+## 🔑 פרטי התחברות למנהל מערכת (Admin)
+- **משתמש:** `admin` (או `admin@synagogue.local`)
+- **סיסמה:** `admin123`
+
+---
+
+## 🛠️ פקודות פיתוח והפעלה
+
+```bash
+# התקנת ספריות
+npm install
+
+# הרצת שרת פיתוח מקומי
+npm run dev
+
+# בנייה לפרודקשן
+cmd /c "npm run build"
+
+# פריסה לענן ב-Firebase Hosting
+cmd /c "npx firebase-tools deploy --only hosting"
 ```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
-```
-
-Run the app: `npm run dev`
-
-**Publish your changes**
-
-Open [Base44.com](http://Base44.com) and click on Publish.
-
-**Docs & Support**
-
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
