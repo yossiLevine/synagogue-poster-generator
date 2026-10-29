@@ -252,7 +252,16 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     }
 
     if (!skipAutoRows && calculated.length > 0) {
-      setPrayerRows(calculated.map((r, i) => ({ ...r, id: r.id || `auto-${i}`, visible: r.visible !== false })));
+      const nextRows = calculated.map((r, i) => ({ ...r, id: r.id || `auto-${i}`, visible: r.visible !== false }));
+      commitPrayerRows(nextRows);
+      if (onChange) {
+        onChange({
+          ...currentData(),
+          prayerRows: nextRows.filter(r => r.visible && r.label).map(r => ({ ...r })),
+          parasha: shabbatData?.parasha || parasha,
+          haftarah: shabbatData?.haftarah || haftarah,
+        });
+      }
     }
     setZmanimLoading(false);
   };
