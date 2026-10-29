@@ -50,6 +50,15 @@ export function calcPrayerRowsFromRules(rules, timesA, shabbatInfo, timesB = nul
  * @param {string} [options.targetDate] - תאריך יעד (YYYY-MM-DD), ברירת מחדל: שישי הקרוב
  * @returns {Promise<object>} PosterPayload
  */
+export function normalizeLabel(s) {
+  if (!s || typeof s !== 'string') return '';
+  return s
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/יי/g, 'י')
+    .replace(/["'״׳\-–—]/g, '');
+}
+
 export async function generatePosterPayload({
   rules = DEFAULT_RULES,
   displayZmanim = DEFAULT_DISPLAY_ZMANIM,
@@ -68,9 +77,11 @@ export async function generatePosterPayload({
   if (synDefaultPrayers && Array.isArray(synDefaultPrayers) && synDefaultPrayers.length > 0) {
     prayerRows = synDefaultPrayers.map((p, idx) => {
       if (p.isHeader || p.isNote) return { ...p, id: p.id || `def-${idx}` };
-      if (p.fixedTime) return { ...p, id: p.id || `def-${idx}`, time: p.fixedTime, visible: p.visible !== false };
-      const matchedRule = rules.find(r => r.label === p.label) || (p.baseZman ? p : null);
-      if (matchedRule && matchedRule.baseZman) {
+
+      const normP = normalizeLabel(p.label);
+      const matchedRule = rules.find(r => normalizeLabel(r.label) === normP) || (p.baseZman ? p : null);
+
+      if (matchedRule && matchedRule.baseZman && matchedRule.baseZman !== 'fixed') {
         let time = '';
         if (matchedRule.baseZman === 'candleLighting' && shabbatInfo?.candleLightingIso) {
           time = applyOffset(shabbatInfo.candleLightingIso, parseInt(matchedRule.offsetMinutes || 0, 10), 'down');
@@ -83,6 +94,12 @@ export async function generatePosterPayload({
         }
         return { ...p, id: p.id || `def-${idx}`, time: time || p.time || '', visible: p.visible !== false };
       }
+
+      if (matchedRule && matchedRule.baseZman === 'fixed') {
+        return { ...p, id: p.id || `def-${idx}`, time: matchedRule.fixedTime || p.fixedTime || p.time || '', visible: p.visible !== false };
+      }
+
+      if (p.fixedTime) return { ...p, id: p.id || `def-${idx}`, time: p.fixedTime, visible: p.visible !== false };
       return { ...p, id: p.id || `def-${idx}`, visible: p.visible !== false };
     });
   } else {

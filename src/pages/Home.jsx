@@ -10,6 +10,7 @@ import { BookOpen, Megaphone, QrCode, Monitor, Globe, Sparkles, RotateCcw, Check
 import jsPDF from 'jspdf';
 import { capturePoster } from '@/lib/posterCapture';
 import { getTodayHebrewDate, getTodayGregorianDate, getTargetPosterInfo } from '@/lib/hebrewDate';
+import { getNextFriday } from '@/lib/zmanimApi';
 import PrayerTimesForm from '@/components/PrayerTimesForm';
 import GeneralAnnouncementForm from '@/components/GeneralAnnouncementForm';
 import PrayerTimesPoster from '@/components/PrayerTimesPoster';
@@ -123,9 +124,11 @@ export default function Home({ synagogueId = null }) {
           const now = Date.now();
           const draftTime = initialData.lastModified || 0;
           const hoursSince = (now - draftTime) / (1000 * 60 * 60);
-          // Keep drafts for up to 5 days (120 hours) so midweek preparations aren't lost
-          if (draftTime > 0 && hoursSince > 120) {
-            await addToHistory({ ...initialData, label: 'טיוטה אוטומטית (שבוע שעבר)' });
+          const nextFriday = getNextFriday();
+          const isPastShabbat = initialData.gregorianDateA && initialData.gregorianDateA < nextFriday;
+          // Discard draft if it's from a past Shabbat or older than 5 days
+          if (isPastShabbat || (draftTime > 0 && hoursSince > 120)) {
+            await addToHistory({ ...initialData, label: isPastShabbat ? 'טיוטה ישנה (שבוע שעבר)' : 'טיוטה אוטומטית (שבוע שעבר)' });
             initialData = null;
           }
         }
@@ -381,17 +384,16 @@ export default function Home({ synagogueId = null }) {
   };
 
   const handleQuickGenerate = () => {
-    if (!liveData) {
-      const btn = document.querySelector('[data-generate-btn]');
-      if (btn) btn.click();
-      return;
-    }
+    const btn = document.querySelector('[data-generate-btn]');
+    if (btn) btn.click();
+    if (!liveData) return;
     const hasTimes = liveData?.prayerRows?.some(r => r.time && r.time.trim());
     if (!hasTimes && liveData?.type === 'prayer') {
       setGenerateToast('no-rules');
       setTimeout(() => setGenerateToast(null), 6000);
       return;
     }
+    handleGenerate(liveData);
     setGenerateToast('success');
     setTimeout(() => setGenerateToast(null), 3000);
     const target = document.getElementById('print-area') || document.getElementById('mobile-poster');

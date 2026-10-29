@@ -4,13 +4,14 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Loader2, Clock, Save, Copy, FolderOpen, GripVertical, AlertCircle, X, ChevronDown, RotateCcw, Camera, Check, Settings, Undo2, Redo2, Sliders } from 'lucide-react';
+import { Plus, Trash2, Loader2, Clock, Save, Copy, FolderOpen, GripVertical, AlertCircle, X, ChevronDown, RotateCcw, Camera, Check, Settings, Undo2, Redo2, Sliders, Sparkles, Zap } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { fetchZmanim, fetchShabbatInfo, buildZmanimForDisplay, fetchZmanimTwoDays, getNextFriday, addDays, resolveZmanIso, formatTime, ZMANIM_META } from '@/lib/zmanimApi';
+import { fetchZmanim, fetchShabbatInfo, buildZmanimForDisplay, fetchZmanimTwoDays, getNextFriday, addDays, resolveZmanIso, formatTime, ZMANIM_META, applyOffset } from '@/lib/zmanimApi';
 import { saveTemplate, loadTemplates, deleteTemplate } from '@/lib/templates';
 import ZmanimSelector, { DEFAULT_ZMANIM, loadSavedZmanim, loadZmanim, loadSavedOverrides, loadZmanimOverrides } from './ZmanimSelector';
 import RelativeZmanimConfig, { loadRules, loadRulesAsync, calcPrayerRowsFromRules } from './RelativeZmanimConfig';
+import { normalizeLabel } from '@/lib/posterEngine';
 import { DEFAULT_RULES, loadSynagogueDefaultPrayers, saveSynagogueDefaultPrayers } from '@/lib/synagogueConfig';
 import YahrtzeitPanel from './YahrtzeitPanel';
 import WeekdayTimesSection from './WeekdayTimesSection';
@@ -221,9 +222,11 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     if (synDefaultPrayers && Array.isArray(synDefaultPrayers) && synDefaultPrayers.length > 0) {
       calculated = synDefaultPrayers.map((p, idx) => {
         if (p.isHeader || p.isNote) return { ...p, id: p.id || `def-${idx}` };
-        if (p.fixedTime) return { ...p, id: p.id || `def-${idx}`, time: p.fixedTime, visible: p.visible !== false };
-        const matchedRule = effectiveRules.find(r => r.label === p.label) || (p.baseZman ? p : null);
-        if (matchedRule && matchedRule.baseZman) {
+
+        const normP = normalizeLabel(p.label);
+        const matchedRule = effectiveRules.find(r => normalizeLabel(r.label) === normP) || (p.baseZman ? p : null);
+
+        if (matchedRule && matchedRule.baseZman && matchedRule.baseZman !== 'fixed') {
           let time = '';
           if (matchedRule.baseZman === 'candleLighting' && shabbatData?.candleLightingIso) {
             time = applyOffset(shabbatData.candleLightingIso, parseInt(matchedRule.offsetMinutes || 0, 10), 'down');
@@ -236,6 +239,12 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
           }
           return { ...p, id: p.id || `def-${idx}`, time: time || p.time || '', visible: p.visible !== false };
         }
+
+        if (matchedRule && matchedRule.baseZman === 'fixed') {
+          return { ...p, id: p.id || `def-${idx}`, time: matchedRule.fixedTime || p.fixedTime || p.time || '', visible: p.visible !== false };
+        }
+
+        if (p.fixedTime) return { ...p, id: p.id || `def-${idx}`, time: p.fixedTime, visible: p.visible !== false };
         return { ...p, id: p.id || `def-${idx}`, visible: p.visible !== false };
       });
     } else {
@@ -248,9 +257,75 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     setZmanimLoading(false);
   };
 
+  const handleRecalculateFromRules = async () => {
+    setZmanimLoading(true);
+    const effectiveDateA = selectedDate || getNextFriday();
+    const effectiveDateB = selectedDateB || addDays(effectiveDateA, 1);
+    
+    try {
+      const [{ zmanimA, zmanimB: zB }, shabbatData, rules, synDefaultPrayers] = await Promise.all([
+        fetchZmanimTwoDays(effectiveDateA, effectiveDateB),
+        fetchShabbatInfo(effectiveDateA),
+        loadRulesAsync(),
+        loadSynagogueDefaultPrayers().catch(() => null),
+      ]);
+
+      const effectiveRules = rules.length > 0 ? rules : DEFAULT_RULES;
+      let calculated = [];
+      if (synDefaultPrayers && Array.isArray(synDefaultPrayers) && synDefaultPrayers.length > 0) {
+        calculated = synDefaultPrayers.map((p, idx) => {
+          if (p.isHeader || p.isNote) return { ...p, id: p.id || `def-${idx}` };
+          const normP = normalizeLabel(p.label);
+          const matchedRule = effectiveRules.find(r => normalizeLabel(r.label) === normP) || (p.baseZman ? p : null);
+
+          if (matchedRule && matchedRule.baseZman && matchedRule.baseZman !== 'fixed') {
+            let time = '';
+            if (matchedRule.baseZman === 'candleLighting' && shabbatData?.candleLightingIso) {
+              time = applyOffset(shabbatData.candleLightingIso, parseInt(matchedRule.offsetMinutes || 0, 10), 'down');
+            } else {
+              const iso = resolveZmanIso(matchedRule.baseZman, zmanimA || {}, zB || {});
+              if (iso) {
+                const roundDir = (matchedRule.dayTag || p.dayTag) === 'A' ? 'down' : 'up';
+                time = applyOffset(iso, parseInt(matchedRule.offsetMinutes || 0, 10), roundDir);
+              }
+            }
+            return { ...p, id: p.id || `def-${idx}`, time: time || p.time || '', visible: p.visible !== false };
+          }
+
+          if (matchedRule && matchedRule.baseZman === 'fixed') {
+            return { ...p, id: p.id || `def-${idx}`, time: matchedRule.fixedTime || p.fixedTime || p.time || '', visible: p.visible !== false };
+          }
+
+          if (p.fixedTime) return { ...p, id: p.id || `def-${idx}`, time: p.fixedTime, visible: p.visible !== false };
+          return { ...p, id: p.id || `def-${idx}`, visible: p.visible !== false };
+        });
+      } else {
+        calculated = calcPrayerRowsFromRules(effectiveRules, zmanimA, shabbatData, zB);
+      }
+
+      if (calculated.length > 0) {
+        const nextRows = calculated.map((r, i) => ({ ...r, id: r.id || `auto-${i}`, visible: r.visible !== false }));
+        commitPrayerRows(nextRows);
+        if (onChange) {
+          onChange({
+            ...currentData(),
+            prayerRows: nextRows.filter(r => r.visible && r.label).map(r => ({ ...r }))
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Error recalculating from rules:', e);
+    }
+    setZmanimLoading(false);
+  };
+
   useEffect(() => {
-    const shouldSkip = (!!dataToLoad && dataToLoad?.prayerRows?.some(r => r.time && r.time.trim() !== '')) || 
-                       (!!initialData && hasValidTimes);
+    const nextFriday = getNextFriday();
+    const isPastShabbat = initialData?.gregorianDateA && initialData.gregorianDateA < nextFriday;
+    const shouldSkip = !isPastShabbat && (
+      (!!dataToLoad && dataToLoad?.prayerRows?.some(r => r.time && r.time.trim() !== '')) || 
+      (!!initialData && hasValidTimes)
+    );
     loadZmanimData(undefined, undefined, shouldSkip);
     loadTemplates().then(setTemplates);
   }, []);
@@ -359,6 +434,13 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     setUndoStack(prev => [...prev.slice(-20), prayerRows]);
     setRedoStack([]);
     setPrayerRows(next);
+    if (onChange) {
+      onChange({
+        ...currentData(),
+        prayerRows: next.filter(r => r.visible && r.label).map(r => ({ ...r })),
+        hiddenRows: next.filter(r => !r.visible && r.label)
+      });
+    }
   };
 
   const handleUndo = () => {
@@ -809,6 +891,26 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
               </Button>
             </div>
           </div>
+
+          <div className="flex items-center justify-between p-2.5 bg-gradient-to-r from-primary/15 via-primary/10 to-indigo-500/10 border border-primary/25 rounded-xl shadow-2xs">
+            <div className="flex items-center gap-2 text-xs font-bold text-primary">
+              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+              <span>חישוב שעות לפי כללי בית הכנסת</span>
+            </div>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={handleRecalculateFromRules}
+              disabled={zmanimLoading}
+              className="h-8 text-xs font-bold gap-1.5 shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground"
+              title="חשב מחדש את כל השעות לפי שקיעה והדלקת נרות של שבת זו"
+            >
+              {zmanimLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}
+              <span>⚡ חשב זמנים לשבת זו</span>
+            </Button>
+          </div>
+
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="prayer-rows">
               {(provided) => (
