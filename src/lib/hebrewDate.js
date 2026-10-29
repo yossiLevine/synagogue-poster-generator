@@ -157,11 +157,13 @@ export function getTodayHebrewDateShort(date = new Date()) {
  */
 export function getUpcomingShabbatHebrewDate(date = new Date()) {
   try {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = (6 - day + 7) % 7;
+    const israelStr = date.toLocaleDateString('en-CA', { timeZone: 'Asia/Jerusalem' });
+    const [y, m, dayNum] = israelStr.split('-').map(Number);
+    const d = new Date(y, m - 1, dayNum);
+    const dow = d.getDay();
+    const diff = dow === 6 ? 7 : (6 - dow + 7) % 7;
     const sat = new Date(d);
-    sat.setDate(d.getDate() + (diff === 0 ? 0 : diff));
+    sat.setDate(d.getDate() + diff);
     const parts = getHebrewParts(sat);
     return `${parts.dayHebrew} ${parts.monthHebrew} ${parts.yearHebrew}`;
   } catch {

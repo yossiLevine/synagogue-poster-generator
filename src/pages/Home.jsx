@@ -94,6 +94,17 @@ export default function Home({ synagogueId = null }) {
   const [workspaces, setWorkspaces] = useState(() => getWorkspaces());
   const [activeWorkspaceId, setActiveWorkspaceIdState] = useState(() => getActiveWorkspaceId());
 
+  // Prevent screen from sleeping in Kiosk / Presentation mode
+  useEffect(() => {
+    let wakeLock = null;
+    if (presentationMode && 'wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').then(lock => { wakeLock = lock; }).catch(() => {});
+    }
+    return () => {
+      if (wakeLock) wakeLock.release().catch(() => {});
+    };
+  }, [presentationMode]);
+
   // Load synagogue settings on mount
   useEffect(() => {
     loadConfig(); // warm up config cache from DB
@@ -403,7 +414,7 @@ export default function Home({ synagogueId = null }) {
   const handlePosterInlineUpdate = (partial) => {
     setLiveData(prev => {
       if (!prev) return prev;
-      const next = { ...prev, ...partial };
+      const next = { ...prev, ...partial, lastModified: Date.now() };
       try {
         localStorage.setItem('editor_draft', JSON.stringify(next));
       } catch (e) {}

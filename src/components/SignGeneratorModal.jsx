@@ -118,6 +118,9 @@ export default function SignGeneratorModal({
     } else {
       setSignData(SIGN_TEMPLATES[0]);
     }
+    return () => {
+      document.body.classList.remove('printing-sign');
+    };
   }, [initialData, isOpen]);
 
   if (!isOpen) return null;
@@ -128,10 +131,13 @@ export default function SignGeneratorModal({
 
   const handlePrint = () => {
     document.body.classList.add('printing-sign');
-    window.print();
-    setTimeout(() => {
+    const cleanup = () => {
       document.body.classList.remove('printing-sign');
-    }, 1500);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    window.print();
+    setTimeout(cleanup, 1500);
   };
 
   const handleDownloadPDF = async () => {

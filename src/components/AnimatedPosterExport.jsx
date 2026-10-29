@@ -16,10 +16,33 @@ export default function AnimatedPosterExport({ liveData, isOpen, onClose }) {
   const candleLighting = liveData?.shabbatInfo?.candleLighting || '18:15';
   const rows = (liveData?.prayerRows || []).filter(r => r.visible && r.label && r.time).slice(0, 6);
 
+  const recorderRef = useRef(null);
+  const streamRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      if (recorderRef.current && recorderRef.current.state === 'recording') {
+        try { recorderRef.current.stop(); } catch {}
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
+      setIsGenerating(false);
+    }
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, [isOpen]);
+
   const startAnimationAndRecord = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
     setIsGenerating(true);
     setProgress(0);
     setVideoUrl(null);
@@ -29,6 +52,7 @@ export default function AnimatedPosterExport({ liveData, isOpen, onClose }) {
     canvas.height = 1280;
 
     const stream = canvas.captureStream(30);
+    streamRef.current = stream;
     let recorder;
     try {
       recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
@@ -39,6 +63,7 @@ export default function AnimatedPosterExport({ liveData, isOpen, onClose }) {
         recorder = new MediaRecorder(stream);
       }
     }
+    recorderRef.current = recorder;
 
     const chunks = [];
     recorder.ondataavailable = (e) => {
@@ -46,6 +71,9 @@ export default function AnimatedPosterExport({ liveData, isOpen, onClose }) {
     };
 
     recorder.onstop = () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
       const blob = new Blob(chunks, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
       setVideoUrl(url);
@@ -60,7 +88,7 @@ export default function AnimatedPosterExport({ liveData, isOpen, onClose }) {
 
     const renderFrame = () => {
       if (currentFrame >= totalFrames) {
-        recorder.stop();
+        if (recorder.state === 'recording') recorder.stop();
         return;
       }
 
@@ -197,7 +225,7 @@ export default function AnimatedPosterExport({ liveData, isOpen, onClose }) {
         ctx.restore();
       }
 
-      requestAnimationFrame(renderFrame);
+      animRef.current = requestAnimationFrame(renderFrame);
     };
 
     renderFrame();

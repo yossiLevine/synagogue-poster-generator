@@ -213,6 +213,12 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
       if (holCtx.hasYizkor) setShowYizkorBadge(true);
     } else {
       setHolidayNotice(null);
+      if (!skipAutoRows) {
+        setIsHolidayMode(false);
+        setHolidayName('');
+        setShowEruvTavshilin(false);
+        setShowYizkorBadge(false);
+      }
     }
 
     const effectiveRules = rules.length > 0 ? rules : DEFAULT_RULES;
@@ -534,7 +540,10 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
     commitPrayerRows([...prayerRows, { id: `note-${Date.now()}-${Math.random()}`, label: 'קידושא רבא אחרי התפילה', time: '', visible: true, isNote: true }]);
   };
 
-  const removeRow = (index) => commitPrayerRows(prayerRows.filter((_, i) => i !== index));
+  const removeRow = (index) => {
+    const filtered = prayerRows.filter((_, i) => i !== index);
+    commitPrayerRows(filtered.length > 0 ? filtered : [{ id: `new-${Date.now()}`, label: '', time: '', visible: true }]);
+  };
 
   const saveAsPermanentRule = async (row) => {
     if (!row.label || !row.time) {
@@ -597,7 +606,9 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
 
   const handleLoadTemplate = async (name) => {
     const t = templates[name];
-    if (t) setPrayerRows(t.prayerRows.map(r => ({ ...r, visible: r.visible !== false })));
+    if (t && Array.isArray(t.prayerRows)) {
+      commitPrayerRows(t.prayerRows.map((r, idx) => ({ ...r, id: r.id || `tmpl-${Date.now()}-${idx}`, visible: r.visible !== false })));
+    }
   };
 
   const handleDeleteTemplate = async (name) => {
@@ -1074,7 +1085,19 @@ export default function PrayerTimesForm({ onGenerate, onChange, dataToLoad, init
             </Button>
           </div>
           <div className="pt-1 border-t border-border mt-2">
-            <PresetTemplates onLoad={(rows) => setPrayerRows(rows)} />
+            <PresetTemplates onLoad={(rows, preset) => {
+              if (preset?.id === 'shabbat_regular') {
+                setIsHolidayMode(false);
+                setIsYomTov(false);
+                setHolidayName('');
+                setShowEruvTavshilin(false);
+                setShowYizkorBadge(false);
+              } else if (preset) {
+                setIsHolidayMode(true);
+                setHolidayName(preset.label.replace(/^[^\s]+\s*/, ''));
+              }
+              commitPrayerRows(rows);
+            }} />
           </div>
           <div className="space-y-2 pt-1 border-t border-border mt-1">
             <p className="text-xs font-semibold text-muted-foreground">שמירת תבנית אישית</p>

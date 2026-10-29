@@ -143,6 +143,13 @@ export default function AdminDashboard() {
     try {
       clearSynagogueCache();
       clearConfigCache();
+      const prevSynId = localStorage.getItem('synagogue_id');
+      if (prevSynId !== synagogueId) {
+        localStorage.removeItem('editor_draft');
+        localStorage.removeItem('synagogue_relative_rules');
+        localStorage.removeItem('synagogue_config');
+        localStorage.removeItem('synagogue_default_prayers');
+      }
       localStorage.setItem('synagogue_id', synagogueId);
       localStorage.setItem('is_admin_mode', 'true');
       localStorage.setItem('admin_editing_syn_id', synagogueId);

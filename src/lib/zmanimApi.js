@@ -364,7 +364,12 @@ export function resolveZmanIso(key, timesA, timesB) {
   if (!meta) return null;
   if (key === 'candleLighting') return (timesA && timesA.candleLighting) || null;
   const source = meta.source === 'timesB' ? (timesB || {}) : (timesA || {});
-  return source[meta.apiKey] || null;
+  if (source[meta.apiKey]) return source[meta.apiKey];
+  if (key === 'tzeit72min' && source.sunset) {
+    const ms = new Date(source.sunset).getTime() + 72 * 60000;
+    return new Date(ms).toISOString();
+  }
+  return null;
 }
 
 /**

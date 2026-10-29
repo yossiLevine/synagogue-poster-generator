@@ -101,8 +101,8 @@ export default function PresetTemplates({ onLoad }) {
   const [open, setOpen] = useState(false);
 
   const handleLoad = (preset) => {
-    const rows = preset.rows.map(r => ({ ...r, id: `preset-${idCounter++}` }));
-    onLoad(rows);
+    const rows = preset.rows.map(r => ({ ...r, id: `preset-${Date.now()}-${idCounter++}` }));
+    onLoad(rows, preset);
     setOpen(false);
   };
 

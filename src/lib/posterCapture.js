@@ -3,7 +3,13 @@ import html2canvas from 'html2canvas';
 function stripGradients(doc) {
   doc.querySelectorAll('img').forEach(img => { 
     try {
-      img.crossOrigin = 'anonymous'; 
+      const src = img.getAttribute('src') || '';
+      if (src.startsWith('http') && !src.includes(window.location.host)) {
+        img.crossOrigin = 'anonymous';
+      }
+      img.onerror = () => {
+        img.style.display = 'none';
+      };
     } catch { /* ignore */ }
   });
 }
@@ -28,12 +34,21 @@ export async function capturePoster(scale = 2, targetId = 'print-area', options 
     throw new Error(`האלמנט להדפסה (${targetId}) לא נמצא`);
   }
 
-  // Ensure target and ancestors are rendered (e.g. mobile hidden panel)
-  let hiddenAncestor = el.closest('.hidden');
-  let restoredDisplay = false;
-  if (hiddenAncestor) {
-    hiddenAncestor.classList.remove('hidden');
-    restoredDisplay = true;
+  // Ensure target and ALL ancestors are rendered (e.g. mobile hidden panel)
+  const hiddenAncestors = [];
+  let parent = el;
+  while (parent && parent !== document.body) {
+    const computed = window.getComputedStyle(parent);
+    if (parent.classList.contains('hidden') || computed.display === 'none') {
+      hiddenAncestors.push({
+        node: parent,
+        hadHiddenClass: parent.classList.contains('hidden'),
+        prevDisplay: parent.style.display
+      });
+      parent.classList.remove('hidden');
+      parent.style.display = 'block';
+    }
+    parent = parent.parentElement;
   }
 
   // Wait for web fonts if available
@@ -56,7 +71,7 @@ export async function capturePoster(scale = 2, targetId = 'print-area', options 
     const canvas = await html2canvas(el, {
       scale,
       useCORS: true,
-      allowTaint: true,
+      allowTaint: false,
       backgroundColor: '#ffffff',
       logging: false,
       imageTimeout: 15000,
@@ -159,8 +174,9 @@ export async function capturePoster(scale = 2, targetId = 'print-area', options 
       valueOf() { return dataUrl; },
     };
   } finally {
-    if (restoredDisplay && hiddenAncestor) {
-      hiddenAncestor.classList.add('hidden');
-    }
+    hiddenAncestors.forEach(({ node, hadHiddenClass, prevDisplay }) => {
+      node.style.display = prevDisplay;
+      if (hadHiddenClass) node.classList.add('hidden');
+    });
   }
 }

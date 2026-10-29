@@ -64,6 +64,12 @@ const RULES_LS_KEY = 'synagogue_relative_rules';
 
 import { getSynagogueId, loadRulesFromDB, saveRulesToDB, saveDraftToDB } from '@/lib/synagogueDB';
 import { resolveZmanIso, applyOffset, fetchZmanimTwoDays, fetchShabbatInfo, getNextFriday, addDays } from '@/lib/zmanimApi';
+import { loadSynagogueDefaultPrayers, saveSynagogueDefaultPrayers } from '@/lib/synagogueConfig';
+
+function normalizeRuleLabel(s) {
+  if (!s || typeof s !== 'string') return '';
+  return s.trim().replace(/\s+/g, ' ').replace(/יי/g, 'י').replace(/["'״׳\-–—]/g, '');
+}
 
 function migrateRules(rules) {
   // Fix: tzeit7083deg/tzeit85deg with dayTag 'A' should use the Friday variants
@@ -144,20 +150,55 @@ export function calcPrayerRowsFromRules(rules, timesA, shabbatInfo, timesB = nul
 }
 
 export async function calculateRowsForCurrentShabbat(rules) {
-  let friday = getNextFriday();
-  try {
-    const raw = localStorage.getItem('editor_draft');
-    if (raw) {
-      const d = JSON.parse(raw);
-      if (d.gregorianDateA) friday = d.gregorianDateA;
-    }
-  } catch {}
-
+  const friday = getNextFriday();
   const shabbat = addDays(friday, 1);
-  const [{ zmanimA, zmanimB }, shabbatInfo] = await Promise.all([
+  const [{ zmanimA, zmanimB }, shabbatInfo, synDefaultPrayers] = await Promise.all([
     fetchZmanimTwoDays(friday, shabbat),
     fetchShabbatInfo(friday),
+    loadSynagogueDefaultPrayers().catch(() => null),
   ]);
+
+  if (synDefaultPrayers && Array.isArray(synDefaultPrayers) && synDefaultPrayers.length > 0) {
+    const updatedDefaults = synDefaultPrayers.map((p, idx) => {
+      if (p.isHeader || p.isNote) return { ...p, id: p.id || `def-${idx}`, visible: p.visible !== false };
+      const normP = normalizeRuleLabel(p.label);
+      const matchedRule = rules.find(r => normalizeRuleLabel(r.label) === normP);
+      if (matchedRule) {
+        const singleCalc = calcPrayerRowsFromRules([matchedRule], zmanimA, shabbatInfo, zmanimB)[0];
+        return {
+          ...p,
+          id: p.id || `def-${idx}`,
+          baseZman: matchedRule.baseZman,
+          offsetMinutes: matchedRule.offsetMinutes,
+          dayTag: matchedRule.dayTag || p.dayTag || 'A',
+          fixedTime: matchedRule.baseZman === 'fixed' ? matchedRule.fixedTime : '',
+          time: singleCalc ? singleCalc.time : (matchedRule.fixedTime || ''),
+          visible: p.visible !== false,
+        };
+      }
+      return { ...p, id: p.id || `def-${idx}`, visible: p.visible !== false };
+    });
+    // Also append any newly added rules that weren't in synDefaultPrayers
+    rules.forEach((rule, rIdx) => {
+      const normR = normalizeRuleLabel(rule.label);
+      const exists = updatedDefaults.some(p => !p.isHeader && !p.isNote && normalizeRuleLabel(p.label) === normR);
+      if (!exists && rule.label) {
+        const singleCalc = calcPrayerRowsFromRules([rule], zmanimA, shabbatInfo, zmanimB)[0];
+        updatedDefaults.push({
+          id: `rule-new-${rIdx}-${Date.now()}`,
+          label: rule.label,
+          baseZman: rule.baseZman,
+          offsetMinutes: rule.offsetMinutes,
+          dayTag: rule.dayTag || 'A',
+          fixedTime: rule.baseZman === 'fixed' ? rule.fixedTime : '',
+          time: singleCalc ? singleCalc.time : (rule.fixedTime || ''),
+          visible: true,
+        });
+      }
+    });
+    saveSynagogueDefaultPrayers(updatedDefaults).catch(() => {});
+    return updatedDefaults;
+  }
 
   const rawRows = calcPrayerRowsFromRules(rules, zmanimA, shabbatInfo, zmanimB);
   return rawRows.map((r, i) => ({

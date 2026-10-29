@@ -24,14 +24,26 @@ export default function GabaiLogin() {
       const email = cleanUsername.includes('@') ? cleanUsername : `${cleanUsername}@synagogue.local`;
       
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const { clearSynagogueCache } = await import('@/lib/synagogueDB');
+      clearSynagogueCache();
       
       // Fetch gabai metadata
       const gabaiDoc = await getDoc(doc(db, 'gabais', email));
       if (gabaiDoc.exists() && gabaiDoc.data().synagogue_id) {
-        localStorage.setItem('synagogue_id', gabaiDoc.data().synagogue_id);
+        const nextSynId = gabaiDoc.data().synagogue_id;
+        const prevSynId = localStorage.getItem('synagogue_id');
+        if (prevSynId !== nextSynId) {
+          localStorage.removeItem('editor_draft');
+          localStorage.removeItem('synagogue_relative_rules');
+          localStorage.removeItem('synagogue_config');
+          localStorage.removeItem('synagogue_default_prayers');
+        }
+        localStorage.setItem('synagogue_id', nextSynId);
+        localStorage.setItem('gabai_username', cleanUsername);
         navigate('/editor');
       } else {
         // They are either an admin or not a gabai
+        localStorage.setItem('gabai_username', cleanUsername);
         navigate('/admin');
       }
     } catch (e) {
