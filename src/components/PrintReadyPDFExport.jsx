@@ -32,7 +32,7 @@ export default function PrintReadyPDFExport({ liveData, currentThemeId, onThemeC
       if (document.fonts && document.fonts.ready) {
         await document.fonts.ready;
       }
-      const imgCapture = await capturePoster(window.innerWidth < 768 ? 2 : 2.5);
+      const imgCapture = await capturePoster(window.innerWidth < 768 ? 2 : 2.5, 'print-area', { format: 'a4' });
       const imgData = imgCapture.dataUrl || imgCapture;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pw = pdf.internal.pageSize.getWidth();

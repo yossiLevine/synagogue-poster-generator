@@ -143,7 +143,7 @@ export default function SignGeneratorModal({
   const handleDownloadPDF = async () => {
     try {
       setIsExporting(true);
-      const capture = await capturePoster(2, 'sign-print-area');
+      const capture = await capturePoster(2, 'sign-print-area', { format: 'a4' });
       const imgData = capture.dataUrl || capture;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pw = pdf.internal.pageSize.getWidth();

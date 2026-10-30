@@ -68,9 +68,9 @@ export default function GeneralPoster({ data, themeId = 'classic', showQR = fals
 
         {/* Highlight lines */}
         {highlightLines.filter(h => h.text).map((h, i) => (
-          <div key={i} className="mx-4 md:mx-8 px-4 py-2 rounded-lg text-center"
+          <div key={i} data-capture-badge="true" className="mx-4 md:mx-8 px-4 py-2 rounded-lg text-center flex items-center justify-center"
             style={{ backgroundColor: h.color || '#fef3c7' }}>
-            <p className={`${theme.titleFont} text-base md:text-lg font-bold break-words`} style={{ color: theme.titleColor }}>
+            <p data-capture-text="true" className={`${theme.titleFont} text-lg md:text-xl font-bold break-words leading-normal`} style={{ color: theme.titleColor }}>
               {h.text}
             </p>
           </div>

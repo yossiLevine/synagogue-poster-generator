@@ -60,16 +60,18 @@ export async function capturePoster(scale = 2, targetId = 'print-area', options 
     }
   }
 
-  // Standard A4 dimensions in CSS pixels (210mm x 297mm at standard print layout ratio ~1:1.414)
-  const isA4 = options.format !== 'raw';
+  // Standard A4 dimensions for print/PDF vs compact high-readability width for WhatsApp/image sharing
+  const isA4 = options.format === 'a4';
   const A4_WIDTH = 794;
   const A4_HEIGHT = 1123;
+  const SHARE_WIDTH = 660;
   
-  const width = isA4 ? A4_WIDTH : (Math.ceil(el.getBoundingClientRect().width) || el.offsetWidth || 600);
+  const width = isA4 ? A4_WIDTH : (options.format === 'raw' ? (Math.ceil(el.getBoundingClientRect().width) || el.offsetWidth || 600) : SHARE_WIDTH);
 
   try {
     const canvas = await html2canvas(el, {
-      scale,
+      scale: scale || 2.5,
+      windowWidth: 1024,
       useCORS: true,
       allowTaint: false,
       backgroundColor: '#ffffff',
@@ -107,11 +109,48 @@ export async function capturePoster(scale = 2, targetId = 'print-area', options 
           }
         });
 
-        // Expand any max-width constraints so poster and frame fill the full A4 width
+        // Expand any max-width constraints so poster and frame fill the full target width
         const constrainedNodes = clonedEl.querySelectorAll('[class*="max-w-"]');
         constrainedNodes.forEach(node => {
           node.style.maxWidth = '100%';
           node.style.width = '100%';
+        });
+
+        // Compensate for html2canvas baseline downward shift on Hebrew fonts inside background containers
+        clonedEl.querySelectorAll('[data-capture-badge="true"]').forEach(badge => {
+          badge.style.display = 'inline-flex';
+          badge.style.alignItems = 'center';
+          badge.style.justifyContent = 'center';
+          badge.style.paddingTop = '4px';
+          badge.style.paddingBottom = '10px';
+          badge.style.lineHeight = '1.3';
+        });
+
+        clonedEl.querySelectorAll('[data-capture-row="true"]').forEach(row => {
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.paddingTop = '6px';
+          row.style.paddingBottom = '13px';
+        });
+
+        clonedEl.querySelectorAll('[data-capture-card="true"]').forEach(card => {
+          card.style.paddingTop = '10px';
+          card.style.paddingBottom = '16px';
+        });
+
+        clonedEl.querySelectorAll('[data-capture-text="true"]').forEach(txt => {
+          txt.style.position = 'relative';
+          txt.style.top = '-3px';
+          txt.style.lineHeight = '1.35';
+        });
+
+        // Also lift any generic rounded pills/badges with background colors that weren't explicitly tagged
+        clonedEl.querySelectorAll('.rounded-full, .rounded-lg, .rounded-xl').forEach(box => {
+          if (box.hasAttribute('data-capture-badge') || box.hasAttribute('data-capture-row') || box.hasAttribute('data-capture-card')) return;
+          const bg = box.style.backgroundColor;
+          if (bg && bg !== 'transparent') {
+            box.style.paddingBottom = '10px';
+          }
         });
 
         doc.body.dir = 'rtl';

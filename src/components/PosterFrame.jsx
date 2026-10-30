@@ -76,7 +76,7 @@ export default function PosterFrame({ children, id, themeId = 'classic', bgImage
 
       {/* Inner border + content */}
       <div
-        className="relative z-10 m-1.5 sm:m-3 p-3 sm:p-6 md:p-8"
+        className="relative z-10 m-1.5 sm:m-2.5 p-3 sm:p-5 md:p-6"
         style={{ border: `1px solid ${theme.innerBorderColor || 'transparent'}` }}
       >
         {children}
